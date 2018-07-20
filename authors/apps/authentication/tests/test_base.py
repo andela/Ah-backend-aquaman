@@ -12,3 +12,4 @@ class BaseTest(APITestCase):
         self.client = APIClient()
         self.login_url = reverse('authentication:login')
         self.registration_url = reverse('authentication:registration')
+        self.viewusers = reverse('authentication:viewusers')

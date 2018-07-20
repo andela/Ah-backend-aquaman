@@ -1,5 +1,4 @@
-from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView
+from rest_framework import status, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
@@ -7,9 +6,14 @@ from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer
 )
+from django.contrib.sites.shortcuts import get_current_site
+from .models import User
+from django.conf import settings
+from django.core.mail import EmailMessage
+import jwt
 
 
-class RegistrationAPIView(GenericAPIView):
+class RegistrationAPIView(generics.GenericAPIView):
     # Allow any user (authenticated or not) to hit this endpoint.
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
@@ -24,11 +28,21 @@ class RegistrationAPIView(GenericAPIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        user_data = serializer.data
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        url = f"http://{get_current_site(request).domain}/api/users/verify?token={user_data.get('token')}"
+        subject = '[Authors Heaven Activation] Confirm Your Email Address'
+        body = f"Dear {user_data.get('username')}, \
+                     \nYou are receiving this e-mail because you have created an account on Authors heaven.' \
+                     '\nClick the click below to verify your account.\n{url}"
+
+        email = EmailMessage(subject, body, to=[user_data['email']])
+        email.send(fail_silently=False)
+
+        return Response(user_data, status=status.HTTP_201_CREATED)
 
 
-class LoginAPIView(GenericAPIView):
+class LoginAPIView(generics.GenericAPIView):
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = LoginSerializer
@@ -46,7 +60,7 @@ class LoginAPIView(GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = UserSerializer
@@ -71,3 +85,24 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class EmailVerifyAPIView(generics.GenericAPIView):
+
+    def get(self, request):
+        token = request.GET.get('token')
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY)
+        except jwt.exceptions.DecodeError:
+            return self.sendResponse("verification link is invalid")
+        except jwt.ExpiredSignatureError:
+            return self.sendResponse("verification link is expired")
+
+        user = User.objects.filter(email=payload.get('email')).first()
+        user.is_verified = True
+        user.save()
+        return self.sendResponse(
+            "Your Email has been verified,you can now login", status.HTTP_200_OK)
+
+    def sendResponse(self, message, status=status.HTTP_400_BAD_REQUEST):
+        return Response({"message": message}, status)

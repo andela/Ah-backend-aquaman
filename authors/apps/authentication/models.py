@@ -76,9 +76,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     # falsed.
     is_staff = models.BooleanField(default=False)
 
-    #The `is_verified` flag is expected to determine whose user account is
-    #verified by an email. For users who haved verified their emails the flag 
-    # will be false. 
+    # The `is_verified` flag is expected to determine whose user account is
+    # verified by an email. For users who haved verified their emails the flag
+    # will be false.
     is_verified = models.BooleanField(default=False)
 
     # A timestamp representing when this object was created.

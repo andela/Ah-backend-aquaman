@@ -8,11 +8,22 @@ from .test_data import (valid_user, valid_login,
 class UserLoginTest(BaseTest):
 
     """Contains user login test methods."""
-    def test_user_can_login(self):
+
+    def test_verified_user_can_login(self):
         """Tests if a user with valid credentials can login."""
-        self.client.post(self.registration_url, valid_user, format='json')
+        register_response = self.client.post(
+            self.registration_url, valid_user, format='json')
+        self.client.get(self.verify_url+"?token=" +
+                        register_response.data['token'], format='json')
         response = self.client.post(self.login_url, valid_login, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_inactivated_user_cannot_login(self):
+        self.client.post(self.registration_url, valid_user, format='json')
+        response = self.client.post(self.login_url, valid_login, format='json')
+        self.assertEqual(
+            response.data['errors']['error'][0], "Your email is not verified,please click the link in your mailbox")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_wrong_password_auth_fail(self):
         """Tests if a user with a wrong password cannot login."""

@@ -3,7 +3,9 @@ from .test_base import BaseTest
 from rest_framework.views import status
 from .test_data import (valid_user, empty_username,
                         invalid_user_email, short_password, missing_username_key,
-                        invalid_username, invalid_password, empty_email, empty_password)
+                        invalid_username, invalid_password, empty_email, empty_password,
+                        expired_token, invalid_token,
+                        missing_username_key)
 
 
 class UserRegistrationTest(BaseTest):
@@ -31,7 +33,7 @@ class UserRegistrationTest(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             response.data['errors']['email'][0], "This field may not be blank.")
-    
+
     def test_empty_password(self):
         """Tests if a user can not create an account without a password."""
         response = self.client.post(
@@ -58,6 +60,28 @@ class UserRegistrationTest(BaseTest):
         self.assertEqual(
             response.data['errors']['email'][0], "user with this email already exists.")
 
+    def test_can_activate_a_user(self):
+        """Tests if a user can be activated via token"""
+        register_response = self.client.post(
+            self.registration_url, valid_user, format='json')
+        response = self.client.get(self.verify_url+"?token=" +
+                                   register_response.data['token'], format='json')
+        self.assertEqual(
+            response.data['message'], 'Your Email has been verified,you can now login')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_user_cant_activate_with_expired_token(self):
+        """Tests if a user cannot activate email with an invalid token."""
+        response = self.client.get(
+            self.verify_url+"?token="+expired_token, content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_user_cant_activate_with_invalid_token(self):
+        """Tests if a user cannot activate email with an invalid token."""
+        response = self.client.get(
+            self.verify_url+"?token="+invalid_token, content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_register_invalid_email(self):
         """Tests if email entered by user is in the right format."""
         response = self.client.post(
@@ -83,4 +107,4 @@ class UserRegistrationTest(BaseTest):
         data = response.json().get('errors')
         self.assertEqual(400, response.status_code)
         self.assertIn('The username is invalid please use letters and numbers',
-                      data['username'])
+                      data['error'])

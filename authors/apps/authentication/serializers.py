@@ -3,6 +3,7 @@ import re
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import User
+from validate_email import validate_email
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -29,41 +30,36 @@ class RegistrationSerializer(serializers.ModelSerializer):
         # or response, including fields specified explicitly above.
         fields = ['email', 'username', 'password', 'token']
 
-    def validate_email(self, value):
-        email_regex = (r'^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$')
+    def validate(self, value):
         data = self.get_initial()
         email = data.get("email")
-        user_query_set = User.objects.filter(email=email)
-
-        # validate that the correct email format is used
-        if not re.search(email_regex, email):
-            raise serializers.ValidationError("Enter a valid email address.")
-
-        # Validate email has not been used to create account before
-        if user_query_set.exists():
-            raise serializers.ValidationError("This email has already been used to create a user")
-        return value
-
-    def validate_username(self, value):
-
-        username_regex = (r'^(?=.*\d)[a-zA-Z0-9]+$')
-        data = self.get_initial()
         username = data.get("username")
-        user_query_set = User.objects.filter(username=username)
 
         # validate that username passed is correct
-        if not re.search(username_regex, username):
+        if not username.isalnum():
             raise serializers.ValidationError(
                 "The username is invalid please use letters and numbers")
 
-        if user_query_set.exists():
-            raise serializers.ValidationError(
-                "This username already exists please choose another one")
+        self.user_exists('username', username)
+
+        # validate that the correct email format is used
+        if not validate_email(email):
+            raise serializers.ValidationError("Enter a valid email address.")
+        # Validate email has not been used to create account before
+        self.user_exists('email', email)
         return value
 
     def create(self, validated_data):
         # Use the `create_user` method we wrote earlier to create a new user.
         return User.objects.create_user(**validated_data)
+
+    def user_exists(self, field, value):
+        if(field == 'email' and User.objects.filter(email=value).first() is not None):
+            raise serializers.ValidationError(
+                "This email has already been used to create a user")
+        elif User.objects.filter(username=value).first() is not None:
+            raise serializers.ValidationError(
+                "This username already exists please choose another one")
 
 
 class LoginSerializer(serializers.Serializer):
@@ -116,6 +112,12 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 'This user has been deactivated.'
             )
+        # We need to first verify if a users email is verified before we can let them use  the platform
+
+        verified_user = User.objects.filter(email=email).first()
+        if not verified_user.is_verified:
+            raise serializers.ValidationError(
+                'Your email is not verified,please click the link in your mailbox')
 
         # The `validate` method should return a dictionary of validated data.
         # This is the data that is passed to the `create` and `update` methods

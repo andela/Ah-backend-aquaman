@@ -2,7 +2,7 @@ import jwt
 from django.conf import settings
 from rest_framework import authentication, exceptions
 from .models import User
-from django.shortcuts import get_object_or_404
+
 
 class JWTAuthentication(authentication.BaseAuthentication):
 

@@ -1,0 +1,37 @@
+{
+    "name": "ah-backend-aquaman",
+    "scripts": {
+        "postdeploy": "python manage.py makemigrations && python manage.py migrate"
+    },
+    "env": {
+      "DB_NAME": {
+        "required": true
+      },
+      "DB_USER": {
+        "required": true
+      },
+      "HOST": {
+        "required": true
+      },
+      "PASSWORD": {
+        "required": true
+      },
+      "PORT": {
+        "required": true
+      }
+    },
+    "formation": {
+      "web": {
+        "quantity": 1
+      }
+    },
+    "addons": [
+      "heroku-postgresql"
+    ],
+    "buildpacks": [
+      {
+        "url": "heroku/python"
+      }
+    ]
+  }
+  

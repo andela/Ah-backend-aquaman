@@ -12,3 +12,6 @@ install:
 
 script:
     - coverage run --source='authors/apps' manage.py test
+
+after_success:
+    - coveralls

@@ -1,7 +1,7 @@
-# [![Build Status](https://travis-ci.org/andela/Ah-backend-aquaman.svg?branch=develop)](https://travis-ci.org/andela/Ah-backend-aquaman)
+# [![Build Status](https://travis-ci.org/andela/Ah-backend-aquaman.svg?branch=develop)](https://travis-ci.org/andela/Ah-backend-aquaman) [![Coverage Status](https://coveralls.io/repos/github/andela/Ah-backend-aquaman/badge.svg?branch=develop)](https://coveralls.io/github/andela/Ah-backend-aquaman?branch=develop) [![Maintainability](https://api.codeclimate.com/v1/badges/419a8cce1e4d8909ac4a/maintainability)](https://codeclimate.com/github/andela/Ah-backend-aquaman/maintainability)
 
-# Authors Haven - A Social platform for the creative at heart.
-
+Authors Haven - A Social platform for the creative at heart.
+=======
 ## Vision
 
 Create a community of like minded authors to foster inspiration and innovation

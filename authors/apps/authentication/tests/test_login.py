@@ -6,6 +6,7 @@ from .test_data import (valid_user, valid_login,
 
 
 class UserLoginTest(BaseTest):
+
     """Contains user login test methods."""
     def test_user_can_login(self):
         """Tests if a user with valid credentials can login."""

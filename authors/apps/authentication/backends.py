@@ -1,5 +1,4 @@
 from rest_framework import authentication
-
 """Configure JWT Here"""
 
 

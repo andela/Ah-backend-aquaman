@@ -19,11 +19,10 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
-    url(r'^api/', 
+    url(r'^api/',
         include(
-            ('authors.apps.authentication.urls', 'authentication'), 
+            ('authors.apps.authentication.urls', 'authentication'),
             namespace='authentication'
         )
-    ),
+        ),
 ]
-

@@ -1,5 +1,5 @@
 """
-Tests data
+Tests notifications data
 """
 new_user = {
     "user" : {

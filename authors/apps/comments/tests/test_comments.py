@@ -9,11 +9,12 @@ from authors.apps.comments.models import Comment
 from authors.apps.profiles.models import Profile
 from authors.apps.articles.models import Article
 import json
-from .test_base import TestBase
-from test_data import comment, single_comment_url, user
+from .test_base import BaseTest
+from authors.apps.comments.tests.test_data import \
+    (comment, single_comment_url, user,comment_no_body)
 
 
-class TestComments(TestBase):
+class TestComments(BaseTest):
 
     def test_user_can_view_comments_on_article(self):
         self.authenticate_test_user()
@@ -206,7 +207,7 @@ class TestComments(TestBase):
     def test_cannot_dislike_comment_more_than_once(self):
         self.add_comment()
         self.authenticate_test_user2()
-        response = self.client.post(
+        self.client.post(
             self.dislike_comment_url,
             content_type='application/json'
         )

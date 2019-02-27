@@ -7,8 +7,7 @@ from rest_framework import status
 
 from authors.apps.articles.tests.base import BaseTestCase
 
-from .data import (article_missing_data, post_article,
-                   update_article)
+from .data import (article_missing_data, post_article, update_article)
 
 
 class TestArticle(BaseTestCase):

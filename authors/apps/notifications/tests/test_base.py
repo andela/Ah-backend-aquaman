@@ -1,3 +1,6 @@
+"""
+Module for notifications common functionailty
+"""
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from authors.apps.authentication.models import User

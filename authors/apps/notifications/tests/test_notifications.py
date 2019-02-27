@@ -1,11 +1,14 @@
+"""
+Test notifications app
+"""
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
+from authors.apps.notifications.tests.test_base import BaseTestCase
 from authors.apps.notifications.models import Notifications
 from authors.apps.notifications.tests.test_data import (new_user, new_user_name)
 
 
-class NotificationsTest(APITestCase):
+class NotificationsTest(BaseTestCase):
     """
     Tests for notifications
     """

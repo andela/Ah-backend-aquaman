@@ -1,15 +1,15 @@
-"""Contains comment operations shared functioonality """
+"""Contains comment operations shared functionality """
 
 
 from authors.apps.articles.models import Article
-from authors.apps.profiles.models import Profile
+from authors.apps.profile.models import Profile
 from authors.apps.comments.models import Comment
 import json
 from rest_framework.test import APITestCase, APIClient
 from django.urls import reverse
-from authors.apps.comments.tests.test_data import (comment, comment_no_body,
+from authors.apps.comments.tests.testdata import (comment, comment_no_body,
                                                    user,user2, article_response,
-                                                   article, single_reply)
+                                                   article,single_reply)
 
 
 class BaseTest(APITestCase):
@@ -23,7 +23,8 @@ class BaseTest(APITestCase):
         self.comment_reply_url = reverse('comments:comment-reply')
         self.register_url = reverse('authentication:register')
         self.dislike_comment_url=reverse('comments:dislike-comment')
-        self.like_comment_url=reverse('comments:like_comment')
+        self.like_comment_url=reverse('comments:like_comment'),
+        self.comment_id=self.add_comment()
 
     def create_article(self):
         Article.objects.create(
@@ -33,10 +34,10 @@ class BaseTest(APITestCase):
         self.comment_url = reverse(
             'comments:comment', kwargs={'slug': self.slug})
 
-    def add_comment(self,user,article):
+    def add_comment(self):
         comment = Comment(body="New Comment", article=article,author=Profile.objects.get(user=user))
         comment.save()
-        return comment
+        return comment.id
 
     def reply_to_comment(self):
         self.reply = self.client.post(
@@ -46,13 +47,10 @@ class BaseTest(APITestCase):
         )
         self.reply_id = self.reply.data["reply"]["id"]
 
-
-
     def create_and_login_user(self):
         response = self.client.post(self.register_url, data=json.dumps(
             user), content_type='application/json')
         self.client.force_login(user=response['user'])
-
 
     def authenticate_test_user(self):
         response = self.client.post(self.register_url, data=json.dumps(

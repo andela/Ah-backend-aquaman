@@ -1,0 +1,14 @@
+language: python
+
+python:
+    - "3.6"
+
+services: 
+    - postgresql
+    
+install:
+    - pip install -r requirements.txt
+    - pip install coverage==4.5.2
+
+script:
+    - coverage run --source='authors/apps' manage.py test

@@ -47,7 +47,20 @@ empty_username = {
         "password": "Password123"
     }
 }
-
+empty_email = {
+    "user": {
+        "username": "Bagzie",
+        "email": "",
+        "password": "Password123"
+    }
+}
+empty_password = {
+    "user": {
+        "username": "Bagzie",
+        "email": "bagendadeogracious@gmail.com",
+        "password": ""
+    }
+}
 invalid_user_email = {
     "user": {
         "username": "Bagzie",

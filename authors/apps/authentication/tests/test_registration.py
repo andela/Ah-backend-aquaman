@@ -3,7 +3,7 @@ from .test_base import BaseTest
 from rest_framework.views import status
 from .test_data import (valid_user, empty_username,
                         invalid_user_email, short_password, missing_username_key,
-                        invalid_username, invalid_password)
+                        invalid_username, invalid_password, empty_email, empty_password)
 
 
 class UserRegistrationTest(BaseTest):
@@ -24,6 +24,21 @@ class UserRegistrationTest(BaseTest):
         self.assertEqual(
             response.data['errors']['username'][0], "This field may not be blank.")
 
+    def test_empty_email(self):
+        """Tests if a user can not create an account without an email."""
+        response = self.client.post(
+            self.registration_url, empty_email, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data['errors']['email'][0], "This field may not be blank.")
+    
+    def test_empty_password(self):
+        """Tests if a user can not create an account without a password."""
+        response = self.client.post(
+            self.registration_url, empty_password, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data['errors']['password'][0], "This field may not be blank.")
 
     def test_short_password(self):
         """Tests if a user can not create an account with a short password."""

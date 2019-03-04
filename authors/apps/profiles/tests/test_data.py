@@ -19,4 +19,3 @@ update_profile = {
         "bio": "everything tech",
         "image": "https://localhost:8000/people.png"
 }
-

@@ -3,7 +3,7 @@ authentication test data
 """
 valid_user = {
     "user": {
-        "username": "Bagzie",
+        "username": "Bagzie12",
         "email": "bagendadeogracious@gmail.com",
         "password": "Password123"
     }
@@ -68,5 +68,21 @@ missing_username_key = {
     "user": {
         "email": "bagendadeogracious@gmail.com",
         "password": "Password123"
+    }
+}
+
+invalid_username = {
+    "user": {
+        "username": "testus",
+        "email": "testuser@gmail.com",
+        "password": "testing123"
+    }
+}
+
+invalid_password = {
+    "user": {
+        "username": "testuser",
+        "email": "testuser@gmail.com",
+        "password": "testingui"
     }
 }

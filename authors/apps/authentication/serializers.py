@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import authenticate
 
 from rest_framework import serializers
@@ -13,7 +15,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=128,
         min_length=8,
-        write_only=True
+        write_only=True,
+        error_messages={
+            "min_length": "Password should be atleast {min_length} characters"
+        }
     )
 
     # The client should not be able to send a token along with a registration
@@ -24,6 +29,38 @@ class RegistrationSerializer(serializers.ModelSerializer):
         # List all of the fields that could possibly be included in a request
         # or response, including fields specified explicitly above.
         fields = ['email', 'username', 'password']
+
+    def validate_email(self, value):
+        email_regex = (r'^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$')
+        data = self.get_initial()
+        email = data.get("email")
+        user_query_set = User.objects.filter(email=email)
+
+        # validate that the correct email format is used
+        if not re.search(email_regex, email):
+            raise serializers.ValidationError("Enter a valid email address.")
+
+        # Validate email has not been used to create account before
+        if user_query_set.exists():
+            raise serializers.ValidationError("This email has already been used to create a user")
+        return value
+
+    def validate_username(self, value):
+
+        username_regex = (r'^(?=.*\d)[a-zA-Z0-9]+$')
+        data = self.get_initial()
+        username = data.get("username")
+        user_query_set = User.objects.filter(username=username)
+
+        # validate that username passed is correct
+        if not re.search(username_regex, username):
+            raise serializers.ValidationError(
+                "The username is invalid please use letters and numbers")
+
+        if user_query_set.exists():
+            raise serializers.ValidationError(
+                "This username already exists please choose another one")
+        return value
 
     def create(self, validated_data):
         # Use the `create_user` method we wrote earlier to create a new user.

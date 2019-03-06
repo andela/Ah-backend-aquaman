@@ -16,6 +16,21 @@ valid_login = {
     }
 }
 
+valid_user_two = {
+    "user": {
+        "username": "crycetruly",
+        "email": "crycetruly@gmail.com",
+        "password": "xvq6thcuzy"
+    }
+}
+
+
+valid_login_two = {
+    "user": {
+        "email": "crycetruly@gmail.com",
+        "password": "xvq6thcuzy"
+    }
+}
 wrong_password = {
     "user": {
         "email": "bagendadeogracious@gmail.com",
@@ -128,7 +143,7 @@ responses = {
                 ]
             }
         },
-        
+
     'invalid_username':{
         "errors":{
             "username": [
@@ -145,7 +160,7 @@ responses = {
         }
     },
 
-    
+
     'test_login_with_missing_email_fails': {
             "errors": {
                 "error": [

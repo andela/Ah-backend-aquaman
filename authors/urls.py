@@ -39,6 +39,9 @@ urlpatterns = [
     path('api/', include(('authors.apps.profiles.urls',
                           'profiles'), namespace='profiles')),
 
+    path('api/', include(('authors.apps.articles.urls',
+                          'articles'), namespace='articles')),
+
     path('apidocs/', schema_view.with_ui('swagger',
                                          cache_timeout=0),
          name='schema-swagger-ui'),

@@ -11,10 +11,8 @@ class UserLoginTest(BaseTest):
 
     def test_verified_user_can_login(self):
         """Tests if a user with valid credentials can login."""
-        register_response = self.client.post(
-            self.registration_url, valid_user, format='json')
-        self.client.get(self.verify_url+"?token=" +
-                        register_response.data['token'], format='json')
+        reg_data = self.client.post(self.registration_url, valid_user, format='json')
+        self.client.get(self.verify_url + "?token=" + reg_data.data["token"], format='json')
         response = self.client.post(self.login_url, valid_login, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -59,3 +57,10 @@ class UserLoginTest(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['errors']
                          ['email'][0], "This field is required.")
+    def test_login_inactive_email(self):
+        """ Tests to see if user can login with an inactive email """
+        self.client.post(self.registration_url, valid_user, format='json')
+        response = self.client.post(self.login_url, valid_login, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['errors']['error'][0], "Your email is not verified,please click the link in your mailbox")
+

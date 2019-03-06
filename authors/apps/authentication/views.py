@@ -1,17 +1,21 @@
 from rest_framework import status, generics, exceptions
+import jwt
+from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
+from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from .models import User
 from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer
 )
-from .models import User
-from django.conf import settings
+
 from ..core.utils import Utilities
-import jwt
-from django.shortcuts import get_object_or_404
-from .models import User
+
+
 
 
 class RegistrationAPIView(generics.GenericAPIView):
@@ -89,7 +93,6 @@ class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
 
 class EmailVerifyAPIView(generics.GenericAPIView):
-
     def get(self, request):
         token = request.GET.get('token')
         try:

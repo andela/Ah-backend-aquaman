@@ -98,8 +98,87 @@ invalid_username = {
 
 invalid_password = {
     "user": {
-        "username": "testuser",
+        "username": "testuser12",
         "email": "testuser@gmail.com",
         "password": "testingui"
     }
+}
+
+same_email = {
+    "user": {
+        "username": "roy12",
+        "email": "bagendadeogracious@gmail.com",
+        "password": "Password123"
+    }
+}
+
+same_username = {
+    "user": {
+        "username": "Bagzie12",
+        "email": "roywaisibani@gmail.com",
+        "password": "Password123"
+    }
+}
+
+responses = {
+    'test_login_with_invalid_user_fails':{
+            "errors": {
+                "error": [
+                    "A user with this email and password was not found."
+                ]
+            }
+        },
+        
+    'invalid_username':{
+        "errors":{
+            "username": [
+                "Username cannot contain special characters."
+            ]
+        }
+    },
+
+    'invalid_email':{
+        "errors":{
+            "email": [
+                "Enter a valid email address."
+            ]
+        }
+    },
+
+    
+    'test_login_with_missing_email_fails': {
+            "errors": {
+                "error": [
+                    "A user with this email and password was not found."
+                ]
+            }
+        },
+    'email_already_exists':{
+            "errors": {
+                "email": [
+                    "user with this email already exists."
+                ]
+            }
+        },
+    'password_is_too_short': {
+            "errors": {
+                "password": [
+                    "Password should be atleast 8 characters"
+                ]
+            }
+        },
+    'password_is_weak':  {
+            "errors": {
+                "password": [
+                    "Password should at least contain a number, capital and small letter."
+                ]
+            }
+        },
+    'username_already_exists': {
+            "errors": {
+                "username": [
+                    "user with this username already exists."
+                ]
+            }
+        }
 }

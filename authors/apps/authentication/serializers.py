@@ -1,9 +1,12 @@
 import re
 
 from django.contrib.auth import authenticate
+
 from rest_framework import serializers
+
 from .models import User
-from validate_email import validate_email
+
+from .validators import validate_email
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -118,6 +121,7 @@ class LoginSerializer(serializers.Serializer):
         if not verified_user.is_verified:
             raise serializers.ValidationError(
                 'Your email is not verified,please click the link in your mailbox')
+
 
         # The `validate` method should return a dictionary of validated data.
         # This is the data that is passed to the `create` and `update` methods

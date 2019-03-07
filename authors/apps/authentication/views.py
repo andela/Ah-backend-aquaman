@@ -1,4 +1,4 @@
-from rest_framework import status, generics
+from rest_framework import status, generics, exceptions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
@@ -6,11 +6,12 @@ from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer
 )
-from django.contrib.sites.shortcuts import get_current_site
 from .models import User
 from django.conf import settings
-from django.core.mail import EmailMessage
+from ..core.utils import Utilities
 import jwt
+from django.shortcuts import get_object_or_404
+from .models import User
 
 
 class RegistrationAPIView(generics.GenericAPIView):
@@ -29,15 +30,15 @@ class RegistrationAPIView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user_data = serializer.data
-
-        url = f"http://{get_current_site(request).domain}/api/users/verify?token={user_data.get('token')}"
-        subject = '[Authors Heaven Activation] Confirm Your Email Address'
-        body = f"Dear {user_data.get('username')}, \
-                     \nYou are receiving this e-mail because you have created an account on Authors heaven.' \
-                     '\nClick the click below to verify your account.\n{url}"
-
-        email = EmailMessage(subject, body, to=[user_data['email']])
-        email.send(fail_silently=False)
+        message = [
+            request,
+            "verify",
+            user_data.get('token'),
+            "Confirm Your Email Address",
+            "created an account on Authors heaven.",
+            user_data['email']
+        ]
+        Utilities.email_renderer(message)
 
         return Response(user_data, status=status.HTTP_201_CREATED)
 
@@ -102,7 +103,75 @@ class EmailVerifyAPIView(generics.GenericAPIView):
         user.is_verified = True
         user.save()
         return self.sendResponse(
-            "Your Email has been verified,you can now login", status.HTTP_200_OK)
+            "Your Email has been verified,you can now login", 
+            status.HTTP_200_OK
+        )
 
     def sendResponse(self, message, status=status.HTTP_400_BAD_REQUEST):
         return Response({"message": message}, status)
+
+
+class PasswordResetAPIView(generics.GenericAPIView):
+    # Allow any user (authenticated or not) to hit this endpoint.
+    #then send rest password link
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        try:
+            get_object_or_404(User, email=request.data['email'])
+            message = [
+                request,
+                "reset-password/change",
+                str((jwt.encode({"email": request.data['email']}, 
+                    settings.SECRET_KEY)).decode('utf-8')
+                ),
+                "Reset Password",
+                "requested for password reset.",
+                request.data['email']
+            ]
+            Utilities.email_renderer(message)
+            return Response(
+                {
+                    "message": "Please check your email for the reset password link."
+                },
+                status.HTTP_200_OK
+            )
+        except KeyError:
+            raise exceptions.ValidationError(
+                "Email is required in order to reset password."
+            )
+
+
+class ChangePasswordAPIView(generics.GenericAPIView):
+    # Allow any user (authenticated or not) to hit this endpoint.
+    #then allows users to set password
+    permission_classes = (AllowAny,)
+
+    def patch(self, request):
+        try:
+            payload = jwt.decode(request.GET.get('token'), settings.SECRET_KEY)
+            user = User.objects.filter(email=payload.get('email')).first()
+            if len(request.data['password']) >= 8:
+                user.set_password(request.data['password'])
+                user.save()
+                return Response({
+                    "message": "you have reset your password successfully."},
+                    status.HTTP_200_OK
+                )
+            return Response({
+                "error": "password should be atleast 8 characters."},
+                status.HTTP_400_BAD_REQUEST
+            )
+
+        except jwt.exceptions.DecodeError:
+            return Response({
+                "error": "verification link is invalid."},
+                status.HTTP_400_BAD_REQUEST
+            )
+        except KeyError:
+            raise exceptions.ValidationError("Password feild is required.")
+        except jwt.ExpiredSignatureError:
+            return Response({
+                "error": "verification link is expired"},
+                status.HTTP_400_BAD_REQUEST
+            )

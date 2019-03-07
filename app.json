@@ -18,8 +18,13 @@
       },
       "PORT": {
         "required": true
+      },
+      "SECRET_KEY": {
+        "required": true
       }
     },
+    
+
     "formation": {
       "web": {
         "quantity": 1

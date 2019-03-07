@@ -14,3 +14,5 @@ class BaseTest(APITestCase):
         self.registration_url = reverse('authentication:registration')
         self.viewusers = reverse('authentication:viewusers')
         self.verify_url = reverse('authentication:verify_email')
+        self.reset_password_url = reverse('authentication:reset_password_link')
+        self.change_password_url = reverse('authentication:change_password')

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Article, ArticleLikesDislikes
+from .models import Article, ArticleLikesDislikes, Rating
 
 from ..profiles.serializers import ProfileSerializer
 
@@ -7,6 +7,8 @@ from ..profiles.serializers import ProfileSerializer
 class ArticleSerializer (serializers.ModelSerializer):
 
     author = ProfileSerializer(read_only=True)
+    user_rating = serializers.CharField(
+        source="average_rating", required=False)
 
     class Meta:
         model = Article
@@ -22,12 +24,14 @@ class ArticleSerializer (serializers.ModelSerializer):
             "image",
             "likes",
             "dislikes",
+            "user_rating"
         )
         read_only_fields = (
             'author',
             'slug',
             'created_at',
             'updated_at',
+            'user_rating',
         )
 
 
@@ -47,3 +51,22 @@ class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
             'user': {'write_only': True},
             'article': {'write_only': True},
         }
+class RatingSerializer(serializers.ModelSerializer):
+    article = serializers.SerializerMethodField()
+    rated_by = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField()
+    score = serializers.DecimalField(required=True, max_digits=5, decimal_places=2)
+
+    class Meta:
+        model = Rating
+        fields = ('score', 'rated_by', 'article', 'author')
+
+    def get_article(self, obj):
+        return obj.article.title
+
+    def get_author(self, obj):
+        return obj.article.author.user.username
+
+    def get_rated_by(self, obj):
+        return obj.rated_by.username
+

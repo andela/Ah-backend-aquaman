@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import (
         ArticlesApiView, ArticleDetailApiView,
-        ArticleLikeApiView,
+        ArticleLikeApiView, RateArticleView
     )
 
 urlpatterns = [
@@ -17,4 +17,5 @@ urlpatterns = [
         ArticleLikeApiView.as_view(),
         name='article-like'
     ),
+    path("articles/<slug>/rate/", RateArticleView.as_view(), name="rating"),
 ]

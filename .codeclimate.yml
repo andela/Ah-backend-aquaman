@@ -10,4 +10,4 @@ exclude_patterns:
   - "**/migrations/"
   - "**/tests/"
   - "**/*.md"
-  
+  - "**/urls.py"

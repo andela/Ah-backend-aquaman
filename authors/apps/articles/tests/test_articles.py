@@ -77,6 +77,7 @@ class TestArticle(ArticlesBaseTest):
                     kwargs={'slug': article.slug}),
             data=valid_article,
             format='json')
+        
         self.assertIn('title', response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

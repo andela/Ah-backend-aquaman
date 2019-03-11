@@ -40,7 +40,7 @@ urlpatterns = [
                           'profiles'), namespace='profiles')),
 
     path('api/', include(('authors.apps.articles.urls',
-                          'articles'), namespace='articles')),
+                      'articles'), namespace='articles')),
 
     path('apidocs/', schema_view.with_ui('swagger',
                                          cache_timeout=0),

@@ -31,6 +31,7 @@ valid_login_two = {
         "password": "xvq6thcuzy"
     }
 }
+
 wrong_password = {
     "user": {
         "email": "bagendadeogracious@gmail.com",

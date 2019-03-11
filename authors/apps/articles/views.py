@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics, permissions
@@ -7,7 +8,7 @@ from . import (
 )
 from .renderers import ArticleJSONRenderer
 from .utils import Utils
-from authors.apps.articles.models import Article, ArticleLikesDislikes
+from authors.apps.articles.models import Article, ArticleLikesDislikes, Rating
 from ..profiles.models import Profile
 
 
@@ -77,6 +78,7 @@ class ArticleDetailApiView (generics.GenericAPIView):
             'errors': 'that article was not found'
         }, status=status.HTTP_404_NOT_FOUND)
 
+
     def delete(self, request, slug):
         article = self.get_object(slug)
         if article:
@@ -145,3 +147,42 @@ class ArticleLikeApiView(generics.GenericAPIView):
         )
 
         return Response(data, status=status.HTTP_200_OK)
+        
+class RateArticleView(generics.GenericAPIView):
+    serializer_class = serializers.RatingSerializer
+    permission_classes = [permissions.IsAuthenticated, ]
+    renderer_classes = [ArticleJSONRenderer, ]
+
+    def post(self, request, slug):
+
+        user = request.user
+        score_data = request.data.get("article", {})
+
+        score = score_data.get("score", 0)
+        article = get_object_or_404(Article, slug=slug)
+        if score < 0 or score > 5:
+                return Response(
+                    {"message": "Rating must be between 0 and 5"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        serializer = self.serializer_class(data=score_data)
+        serializer.is_valid(raise_exception=True)
+
+        if user.username == article.author.user.username:
+            return Response(
+                {"message": "You can not rate your own article"},
+                status=status.HTTP_403_FORBIDDEN
+                ) 
+
+        try:
+            Rating.objects.get(
+                rated_by_id=user.pk,
+                article_id=article.pk,
+                score=score
+            )
+            return Response(
+                {"message": "You have already rated the article"},
+                status=status.HTTP_200_OK)
+        except Rating.DoesNotExist:
+            serializer.save(rated_by=user, article=article)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)

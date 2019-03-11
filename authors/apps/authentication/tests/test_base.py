@@ -4,6 +4,7 @@
 from rest_framework.test import APIClient, APITestCase
 from .test_data import valid_user, valid_login, valid_login_two, valid_user_two
 from django.urls import reverse
+from .test_data import valid_user, valid_login, valid_login_two, valid_user_two
 
 
 class BaseTest(APITestCase):

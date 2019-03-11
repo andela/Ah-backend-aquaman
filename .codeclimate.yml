@@ -1,0 +1,13 @@
+---
+version: "2"
+prepare:
+  check:
+    enabled: true
+plugins:
+  shellcheck:
+    enabled: true
+exclude_patterns:
+  - "**/migrations/"
+  - "**/tests/"
+  - "**/*.md"
+  

@@ -142,3 +142,19 @@ class TestArticle(ArticlesBaseTest):
             'errors': 'that article was not found'}
         self.assertDictEqual(expected_dict, response.data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_successful_article_like(self):
+        """Tests if a user can like an article successfully."""
+        self.add_article()
+        article = Article.objects.all().first()
+        response = self.like_article()
+        self.assertEqual(response.data['details']['likes'], True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_successful_article_dislike(self):
+        """Tests if a user can like an article successfully."""
+        self.add_article()
+        self.like_article()
+        response = self.like_article()
+        self.assertEqual(response.data['details']['likes'], False)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

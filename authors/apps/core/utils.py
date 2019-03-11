@@ -9,8 +9,7 @@ class Utilities:
     def email_renderer(data):
         """This function sends email to users."""
 
-        url = f"http://{get_current_site(data[0]).domain}\
-            /api/users/{data[1]}?token={data[2]}"
+        url = f"http://{get_current_site(data[0]).domain}/api/users/{data[1]}?token={data[2]}"
         subject = f"[Authors Heaven] {data[3]}"
         body = f"Hello, \
                 \nYou are receiving this e-mail because you have {data[4]}' \

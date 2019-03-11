@@ -1,6 +1,7 @@
 from rest_framework.reverse import reverse
 from authors.apps.authentication.tests import test_base
 from .test_data import valid_article
+from ..models import Article
 
 
 class ArticlesBaseTest(test_base.BaseTest):
@@ -13,3 +14,15 @@ class ArticlesBaseTest(test_base.BaseTest):
         self.client.post(self.articles_url,
                                     data=valid_article,
                                     format='json')
+
+    def like_article(self):
+        article = Article.objects.all().first()
+        return self.client.post(
+            reverse(
+                'articles:article-like',
+                kwargs={
+                    "slug": article.slug
+                }
+            ),
+            format='json'
+        )

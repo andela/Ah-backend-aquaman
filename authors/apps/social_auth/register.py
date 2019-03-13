@@ -17,5 +17,13 @@ def register_social_user(provider, user_id, email, name):
         user = {
             'username': name, 'email': email, 'password': 'XXXXXXXX'}
         User.objects.create_user(**user)
+
+        user = User.objects.filter(email=email).first()
+        user.is_verified = True
+        user.save()
+
         new_user = authenticate(email=email, password="XXXXXXXX")
-        return new_user.token
+        return {
+            'username': new_user.username,
+            'email': new_user.email,
+            'token': new_user.token}

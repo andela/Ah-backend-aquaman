@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from authors.apps.profiles.models import Profile
 from django.contrib.postgres.fields import ArrayField
+from authors.settings import WORD_LENGTH, WORD_PER_MINUTE
 
 
 class Article(models.Model):
@@ -44,6 +45,17 @@ class Article(models.Model):
             for tt in t.values():
                 tag_list.append(tt)
         return tag_list
+    @property
+    def read_time_calculator(self):
+        """This method calculates the read time of an article"""
+        word_count = 0
+        word_count += len(self.body) / WORD_LENGTH
+        result = int(word_count / WORD_PER_MINUTE)
+        if result >= 1:
+            read_time = str(result) + " minute read"
+        else:
+            read_time = " less than a minute read"
+        return read_time
 
 
 class ArticleLikesDislikes(models.Model):
@@ -51,7 +63,6 @@ class ArticleLikesDislikes(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     likes = models.BooleanField(default=False, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
 
 class Rating(models.Model):
     """

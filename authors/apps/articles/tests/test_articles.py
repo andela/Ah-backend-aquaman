@@ -159,3 +159,21 @@ class TestArticle(ArticlesBaseTest):
         response = self.like_article()
         self.assertEqual(response.data['details']['likes'], False)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_all_articles_including_their_readtime(self):
+        """Tests if the articles retrieved include the readtime"""
+        self.add_article()
+        response = self.client.get(self.articles_url)
+        self.assertIn('read_time', response.data['articles'][0])
+        self.assertIn('minute', response.data['articles'][0]['read_time'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_single_article_including_the_readtime(self):
+        """Tests if an article retrieved includes the readtime"""
+        self.add_article()
+        article = Article.objects.all().first()
+        response = self.client.get(reverse('articles:article-detail',
+                                           kwargs={'slug': article.slug}))
+        self.assertIn('read_time', response.data)
+        self.assertIn('minute', response.data['read_time'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

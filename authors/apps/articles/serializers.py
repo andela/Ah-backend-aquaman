@@ -9,6 +9,7 @@ class ArticleSerializer (serializers.ModelSerializer):
     author = ProfileSerializer(read_only=True)
     user_rating = serializers.CharField(
         source="average_rating", required=False)
+    read_time = serializers.CharField(source="read_time_calculator", required=False)
 
     class Meta:
         model = Article
@@ -25,7 +26,9 @@ class ArticleSerializer (serializers.ModelSerializer):
             "image",
             "likes",
             "dislikes",
-            "user_rating"
+            "user_rating",
+            "read_time",
+
         )
         read_only_fields = (
             'author',
@@ -33,6 +36,7 @@ class ArticleSerializer (serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'user_rating',
+            "read_time",
         )
 
 
@@ -52,6 +56,8 @@ class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
             'user': {'write_only': True},
             'article': {'write_only': True},
         }
+
+
 class RatingSerializer(serializers.ModelSerializer):
     article = serializers.SerializerMethodField()
     rated_by = serializers.SerializerMethodField()
@@ -70,4 +76,3 @@ class RatingSerializer(serializers.ModelSerializer):
 
     def get_rated_by(self, obj):
         return obj.rated_by.username
-

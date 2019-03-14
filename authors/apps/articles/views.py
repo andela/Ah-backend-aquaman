@@ -71,7 +71,6 @@ class ArticleDetailApiView (generics.GenericAPIView):
             'errors': 'that article was not found'
         }, status=status.HTTP_404_NOT_FOUND)
 
-
     def delete(self, request, slug):
         article = self.get_object(slug)
         if article:
@@ -140,7 +139,8 @@ class ArticleLikeApiView(generics.GenericAPIView):
         )
 
         return Response(data, status=status.HTTP_200_OK)
-        
+
+
 class RateArticleView(generics.GenericAPIView):
     serializer_class = serializers.RatingSerializer
     permission_classes = [permissions.IsAuthenticated, ]
@@ -154,10 +154,10 @@ class RateArticleView(generics.GenericAPIView):
         score = score_data.get("score", 0)
         article = get_object_or_404(Article, slug=slug)
         if score < 0 or score > 5:
-                return Response(
-                    {"message": "Rating must be between 0 and 5"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            return Response(
+                {"message": "Rating must be between 0 and 5"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         serializer = self.serializer_class(data=score_data)
         serializer.is_valid(raise_exception=True)
 
@@ -165,7 +165,7 @@ class RateArticleView(generics.GenericAPIView):
             return Response(
                 {"message": "You can not rate your own article"},
                 status=status.HTTP_403_FORBIDDEN
-                ) 
+            )
 
         try:
             Rating.objects.get(
@@ -179,3 +179,12 @@ class RateArticleView(generics.GenericAPIView):
         except Rating.DoesNotExist:
             serializer.save(rated_by=user, article=article)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ArticleTagsApiView(generics.ListAPIView):
+
+    def get(self, request):
+        merged = []
+        for tag in Article.get_all_tags():
+            merged += tag
+        return Response({"tags": set(merged)})

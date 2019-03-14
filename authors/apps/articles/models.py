@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from authors.apps.profiles.models import Profile
+from django.contrib.postgres.fields import ArrayField
 
 
 class Article(models.Model):
@@ -16,6 +17,8 @@ class Article(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=True)
     image = models.URLField(blank=True)
     user_rating = models.CharField(max_length=10, default='0')
+    tagList = ArrayField(models.CharField(
+        max_length=200), default=list, blank=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -32,13 +35,22 @@ class Article(models.Model):
         ratings = self.ratings.all().aggregate(score=models.Avg("score"))
         return float('%.2f' % (ratings["score"] if ratings['score'] else 0))
 
+    @staticmethod
+    def get_all_tags():
+        """Gets all tags on all articles """
+        tags = Article.objects.values('tagList').distinct()
+        tag_list = []
+        for t in tags:
+            for tt in t.values():
+                tag_list.append(tt)
+        return tag_list
+
 
 class ArticleLikesDislikes(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     likes = models.BooleanField(default=False, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
 
 
 class Rating(models.Model):

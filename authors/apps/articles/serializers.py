@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import Article, ArticleLikesDislikes, Rating
 from authors.apps.comments.models import Comment
+from .models import Article, ArticleLikesDislikes, Rating, ReportedArticle
 
 from ..profiles.serializers import ProfileSerializer
 
@@ -91,6 +91,8 @@ class RatingSerializer(serializers.ModelSerializer):
     score = serializers.DecimalField(
         required=True, max_digits=5, decimal_places=2)
 
+    score = serializers.DecimalField(required=True, max_digits=5,
+                         decimal_places=2)
     class Meta:
         model = Rating
         fields = ('score', 'rated_by', 'article', 'author')
@@ -103,3 +105,12 @@ class RatingSerializer(serializers.ModelSerializer):
 
     def get_rated_by(self, obj):
         return obj.rated_by.username
+
+
+class ReportedArticleSerializer(serializers.ModelSerializer):
+    reporter = ProfileSerializer(read_only=True)
+    article = ArticleSerializer(read_only=True)
+
+    class Meta:
+        model = ReportedArticle
+        fields = ('id', 'reporter', 'article', 'reason',)

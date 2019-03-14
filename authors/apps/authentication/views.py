@@ -41,7 +41,7 @@ class RegistrationAPIView(generics.GenericAPIView):
             "created an account on Authors heaven.",
             user_data['email']
         ]
-        Utilities.email_renderer(message)
+        Utilities.send_email(message,'auth')
 
         return Response(user_data, status=status.HTTP_201_CREATED)
 
@@ -132,7 +132,7 @@ class PasswordResetAPIView(generics.GenericAPIView):
                 "requested for password reset.",
                 request.data['email']
             ]
-            Utilities.email_renderer(message)
+            Utilities.send_email(message,'auth')
             return Response(
                 {
                     "message": "Please check your email for the reset password link."

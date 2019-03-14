@@ -12,6 +12,9 @@ class UserJSONRenderer(JSONRenderer):
         # the default JSONRenderer to handle rendering errors, so we need to
         # check for this case.
         errors = ''
+        response = json.dumps({'user': data})
+        if isinstance(data, list):
+            return json.dumps({'authorslist': data})
         try:
             errors = data.get('errors', None)
         except:
@@ -23,6 +26,4 @@ class UserJSONRenderer(JSONRenderer):
             return super(UserJSONRenderer, self).render(data)
 
         # Finally, we can render our data under the "user" namespace.
-        return json.dumps({
-            'user': data
-        })
+        return response

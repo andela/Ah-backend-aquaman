@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Article
+from .models import Article, ArticleLikesDislikes
 
 from ..profiles.serializers import ProfileSerializer
 
@@ -20,6 +20,8 @@ class ArticleSerializer (serializers.ModelSerializer):
             "body",
             "author",
             "image",
+            "likes",
+            "dislikes",
         )
         read_only_fields = (
             'author',
@@ -27,3 +29,21 @@ class ArticleSerializer (serializers.ModelSerializer):
             'created_at',
             'updated_at',
         )
+
+
+class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ArticleLikesDislikes
+
+        fields = (
+            'user',
+            'article',
+            'likes',
+            'created_at'
+        )
+
+        extra_kwargs = {
+            'user': {'write_only': True},
+            'article': {'write_only': True},
+        }

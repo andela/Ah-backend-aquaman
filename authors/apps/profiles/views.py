@@ -1,6 +1,9 @@
 from rest_framework import generics, permissions, serializers, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from authors.apps.authentication.models import User
+from authors.apps.authentication.renderers import UserJSONRenderer
+from authors.apps.authentication.serializers import UserSerializer
 
 from .models import Profile
 from .permissions import IsOwnerOrReadOnly
@@ -31,16 +34,6 @@ class ProfileRetrieveAPIView(generics.RetrieveAPIView):
         return Response(profile, status=status.HTTP_200_OK)
 
 
-class ListAuthorsAPIView(generics.ListAPIView):
-    """
-    Implements listing of all users' profiles
-    """
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-    renderer_classes = (ProfileJSONRenderer, )
-    permission_classes = (permissions.IsAuthenticated, )
-
-
 class ProfileUpdateAPIView(generics.UpdateAPIView):
     """ Allows the currently logged in user
     to edit their user profile
@@ -52,3 +45,25 @@ class ProfileUpdateAPIView(generics.UpdateAPIView):
         username = self.kwargs.get("username")
         obj = get_object_or_404(Profile, user__username=username)
         return obj
+
+
+class ListView(generics.ListAPIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+
+class ListAuthorsAPIView(ListView):
+    """
+    Implements listing of all users' profiles
+    """
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    renderer_classes = (ProfileJSONRenderer,)
+
+
+class AuthorsAPIView(ListView):
+    """
+    Displays a list of existing authors with their profiles.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    renderer_classes = (UserJSONRenderer,)

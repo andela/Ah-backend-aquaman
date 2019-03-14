@@ -38,7 +38,7 @@ class TestArticle(ArticlesBaseTest):
        Tests wether an empty list is returned no one has created an article
         """
         response = self.client.get(self.articles_url)
-        self.assertEqual({'articles': [], 'articleCount': 0}, response.data)
+        self.assertIn("('articleCount', 0)", str(response.data))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_retrieve_all_articles(self):
@@ -142,3 +142,19 @@ class TestArticle(ArticlesBaseTest):
             'errors': 'that article was not found'}
         self.assertDictEqual(expected_dict, response.data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_successful_article_like(self):
+        """Tests if a user can like an article successfully."""
+        self.add_article()
+        article = Article.objects.all().first()
+        response = self.like_article()
+        self.assertEqual(response.data['details']['likes'], True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_successful_article_dislike(self):
+        """Tests if a user can like an article successfully."""
+        self.add_article()
+        self.like_article()
+        response = self.like_article()
+        self.assertEqual(response.data['details']['likes'], False)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -21,6 +21,7 @@ class ArticleSerializer (serializers.ModelSerializer):
             "updated_at",
             "body",
             "author",
+            "tagList",
             "image",
             "likes",
             "dislikes",

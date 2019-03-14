@@ -38,7 +38,6 @@ class ArticleDetailApiView (generics.GenericAPIView):
     permission_classes = (app_permissions.IsAuthorOrReadOnly,
                           permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = serializers.ArticleSerializer
-    renderer_classes = (ArticleJSONRenderer,)
 
     def get(self, request, slug):
         article = self.get_object(slug)
@@ -188,3 +187,35 @@ class ArticleTagsApiView(generics.ListAPIView):
         for tag in Article.get_all_tags():
             merged += tag
         return Response({"tags": set(merged)})
+        
+class FavoriteHandlerView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated, ]
+    renderer_classes = [ArticleJSONRenderer, ]
+
+    def post(self, request, slug):
+        user = request.user
+        article = get_object_or_404(Article, slug=slug)
+
+        if article.author.user.username == user.username:
+                return Response(
+                    {
+                        "message": "Please favourite another author's article",
+                    },
+                    status=status.HTTP_403_FORBIDDEN)
+
+        if article in user.profile.favorited_articles.all():
+            return Response({"error": "This article is in your favorites"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Article.objects.handle_favorite_an_article(
+                user_obj=user, slug=article.slug)
+
+    def delete(self, request, slug):
+        user = request.user
+        article = get_object_or_404(Article, slug=slug)
+        if article in user.profile.favorited_articles.all():
+            return Article.objects.unfavorite_an_article(
+                request_user=user, slug=article.slug)
+        else:
+            return Response({"error": "Article does not exist in your favorites"},
+                            status=status.HTTP_400_BAD_REQUEST)

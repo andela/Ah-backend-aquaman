@@ -1,11 +1,44 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
+from rest_framework.response import Response
+from rest_framework import status
 from authors.apps.profiles.models import Profile
 from django.contrib.postgres.fields import ArrayField
 
 from authors.settings import WORD_LENGTH, WORD_PER_MINUTE
 
+
+class ArticleManager(models.Manager):
+    """
+    In our article manager we are going to specify
+    methods relating to how to handle favoriting an article
+    """
+    def handle_favorite_an_article(self, user_obj, slug):
+        
+        user_profile = Profile.objects.filter(user=user_obj).first()
+        article_to_favorite = self.model.objects.filter(slug=slug).first()
+        article_to_favorite.favoritesCount = article_to_favorite.favorites.count() + 1
+        article_to_favorite.favorited = True
+        article_to_favorite.favorites.add(user_profile)
+        article_to_favorite.save()
+        return Response({
+            "message": "Article has been added to favorites"
+        },status=status.HTTP_201_CREATED)
+
+    def unfavorite_an_article(self, request_user, slug):
+        article_slug = slug
+        user_obj = request_user
+        user_ = Profile.objects.get(user=user_obj)
+        unfavorite_article = self.model.objects.get(slug=article_slug)
+        if unfavorite_article.favorites.count():
+            unfavorite_article.favoritesCount = unfavorite_article.favorites.count() - 1
+            unfavorite_article.favorites.remove(user_)
+            unfavorite_article.favorited =  unfavorite_article.favorites.count() > 0
+            unfavorite_article.save()
+            return Response({
+            "message": "Article has been removed from favorites"
+        },status=status.HTTP_200_OK)
 
 class Article(models.Model):
     title = models.CharField(max_length=100)
@@ -21,7 +54,11 @@ class Article(models.Model):
     user_rating = models.CharField(max_length=10, default='0')
     tagList = ArrayField(models.CharField(
         max_length=200), default=list, blank=True)
+    favorites = models.ManyToManyField(Profile, related_name='favorited_articles', blank=True)
+    favorited = models.BooleanField(default=False)
+    favoritesCount = models.IntegerField(default=0)
 
+    objects = ArticleManager()
     class Meta:
         ordering = ['-created_at']
         get_latest_by = ['id']

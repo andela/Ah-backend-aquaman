@@ -122,3 +122,16 @@ class Rating(models.Model):
 
     class Meta:
         ordering = ["-score"]
+
+
+class ReportedArticle(models.Model):
+    reporter=models.ForeignKey('profiles.Profile',on_delete=models.CASCADE)
+    article=models.ForeignKey('articles.Article',on_delete=models.CASCADE)
+    reason=models.CharField(max_length=500)
+    reported_on=models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering=['-reported_on']
+
+    def __str__(self):
+        return self.reason

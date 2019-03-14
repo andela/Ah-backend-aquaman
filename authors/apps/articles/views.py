@@ -13,6 +13,7 @@ from .renderers import ArticleJSONRenderer
 from .utils import Utils
 from authors.apps.articles.models import Article, ArticleLikesDislikes, Rating
 from ..profiles.models import Profile
+from authors.apps.core.utils import Utilities
 
 
 class ArticlesApiView (generics.ListCreateAPIView):
@@ -68,15 +69,14 @@ class ArticlesApiView (generics.ListCreateAPIView):
         return queryset
 
     def post(self, request):
-        data = request.data
         serializer = self.serializer_class(
-            data=data,
+            data=request.data,
             context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
         serializer.save(
             author=Profile.objects.filter(user=request.user).first(),
-            slug=Utils.create_slug(data['title'])
+            slug=Utils.create_slug(request.data['title'])
         )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -261,11 +261,38 @@ class FavoriteHandlerView(generics.GenericAPIView):
                 user_obj=user, slug=article.slug)
 
     def delete(self, request, slug):
-        user = request.user
         article = get_object_or_404(Article, slug=slug)
-        if article in user.profile.favorited_articles.all():
+        if article in request.user.profile.favorited_articles.all():
             return Article.objects.unfavorite_an_article(
-                request_user=user, slug=article.slug)
+                request_user=request.user, slug=article.slug)
         else:
             return Response({"error": "Article does not exist in your favorites"},
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReportArticleView(generics.GenericAPIView):
+    serializer_class = serializers.ReportedArticleSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, slug):
+        reporter = Profile.objects.get(user=request.user)
+        article = Article.objects.filter(slug=slug).first()
+        data = {
+            "reporter": reporter,
+            "article": article,
+            "reason": request.data['reason'] if 'reason' in request.data
+            else ''
+        }
+        if reporter == article.author:
+            return Response({"message": "You cannot report your own article"},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(reporter=reporter, article=article)
+        data = {"subject": "[Article Reported]", "to":
+                serializer.data['article']['author']['email'],
+               "body": f"Your article was reported,These are the details:\n{data['reason']}"}
+        Utilities.send_email(data, 'article_reports')
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

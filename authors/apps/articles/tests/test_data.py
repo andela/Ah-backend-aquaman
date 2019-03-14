@@ -15,3 +15,7 @@ valid_article_with_tags = {
         "tagList": ["test", "apps"]
 
 }
+
+valid_reported_article={
+    "reason":"The post is copied from test.com"
+}

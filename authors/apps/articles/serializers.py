@@ -10,6 +10,7 @@ class ArticleSerializer (serializers.ModelSerializer):
     user_rating = serializers.CharField(
         source="average_rating", required=False)
     read_time = serializers.CharField(max_length=100, read_only=True)
+    favorites = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -28,6 +29,9 @@ class ArticleSerializer (serializers.ModelSerializer):
             "dislikes",
             "user_rating",
             "read_time",
+            "favorited",
+            "favorites",
+            "favoritesCount"
         )
         read_only_fields = (
             'author',
@@ -37,6 +41,12 @@ class ArticleSerializer (serializers.ModelSerializer):
             'user_rating',
         )
 
+    def get_favorites(self, obj):
+        user_profile = obj.favorites.all()
+        user_favorites = []
+        for profile in user_profile:
+            user_favorites.append(profile.user.username)
+        return user_favorites
 
 class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
 
@@ -54,11 +64,14 @@ class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
             'user': {'write_only': True},
             'article': {'write_only': True},
         }
+
+
 class RatingSerializer(serializers.ModelSerializer):
     article = serializers.SerializerMethodField()
     rated_by = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
-    score = serializers.DecimalField(required=True, max_digits=5, decimal_places=2)
+    score = serializers.DecimalField(
+        required=True, max_digits=5, decimal_places=2)
 
     class Meta:
         model = Rating
@@ -72,4 +85,3 @@ class RatingSerializer(serializers.ModelSerializer):
 
     def get_rated_by(self, obj):
         return obj.rated_by.username
-

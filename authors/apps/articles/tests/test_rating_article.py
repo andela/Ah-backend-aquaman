@@ -26,8 +26,9 @@ class TestRatingArticle(ArticlesBaseTest):
             data={"article": {"score": 3}},
             format="json"
         )
+        data = response.data
         self.assertEqual(response.status_code, 403)
-        self.assertIn("article", response.json())
+        self.assertIn("You can not rate your own article", data["message"])
 
     def test_rate_someones_article(self):
         """
@@ -41,8 +42,9 @@ class TestRatingArticle(ArticlesBaseTest):
             data={"article": {"score": 3}},
             format="json"
         )
+        data = response.data
         self.assertEqual(response.status_code, 201)
-        self.assertIn("article", response.json())
+        self.assertIn("score", data)
 
     def test_rate_out_of_range(self):
         """
@@ -56,8 +58,9 @@ class TestRatingArticle(ArticlesBaseTest):
             data={"article": {"score": 6}},
             format="json"
         )
+        data = response.data
         self.assertEqual(response.status_code, 400)
-        self.assertIn("article", response.json())
+        self.assertIn("Rating must be between 0 and 5", data["message"])
 
     def test_rate_article_not_found(self):
         """
@@ -71,7 +74,7 @@ class TestRatingArticle(ArticlesBaseTest):
             format="json"
         )
         self.assertEqual(response.status_code, 404)
-        self.assertIn("article", response.json())
+        self.assertIn("detail", response.data)
 
     def test_rate_article_already_rated(self):
         """
@@ -92,5 +95,6 @@ class TestRatingArticle(ArticlesBaseTest):
             data={"article": {"score": 3}},
             format="json"
         )
+        data = response.data
         self.assertEqual(response.status_code, 200)
-        self.assertIn("article", response.json())
+        self.assertIn("You have already rated the article", data["message"])

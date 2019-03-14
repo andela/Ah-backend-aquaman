@@ -31,7 +31,10 @@ class Migration(migrations.Migration):
                 ('image', models.URLField(blank=True)),
                 ('user_rating', models.CharField(default='0', max_length=10)),
                 ('tagList', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=200), blank=True, default=list, size=None)),
+                ('favorited', models.BooleanField(default=False)),
+                ('favoritesCount', models.IntegerField(default=0)),
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='profiles.Profile')),
+                ('favorites', models.ManyToManyField(blank=True, related_name='favorited_articles', to='profiles.Profile')),
             ],
             options={
                 'ordering': ['-created_at'],

@@ -1,11 +1,10 @@
 from django.urls import path
 
 from .views import (
-    ArticlesApiView, ArticleDetailApiView,
-    ArticleTagsApiView,
-    ArticleLikeApiView, RateArticleView, ArticleLikeApiView,
-)
-
+        ArticlesApiView, ArticleDetailApiView,
+        ArticleLikeApiView, RateArticleView,
+        FavoriteHandlerView, ArticleTagsApiView
+        )
 urlpatterns = [
     path('articles/', ArticlesApiView.as_view(), name='articles'),
     path(
@@ -24,4 +23,5 @@ urlpatterns = [
         ArticleTagsApiView.as_view(),
         name='article-tags'
     ),
+    path('articles/<slug>/favorite', FavoriteHandlerView.as_view(), name='article-favorite'), 
 ]

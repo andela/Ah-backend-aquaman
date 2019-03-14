@@ -47,6 +47,7 @@ class ProfileUpdateAPIView(generics.UpdateAPIView):
         return obj
 
 
+
 class ListView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated, )
 

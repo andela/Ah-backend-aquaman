@@ -1,6 +1,8 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics, permissions
+
+from authors import settings
 from . import (
     serializers,
     permissions as app_permissions
@@ -27,6 +29,8 @@ class ArticlesApiView (generics.ListCreateAPIView):
 
     def post(self, request):
         data = request.data.get('article')
+        read_time = read_time_calculator(data)
+        data["readtime"] = read_time
         serializer = self.serializer_class(
             data=data,
             context={"request": request}
@@ -145,3 +149,16 @@ class ArticleLikeApiView(generics.GenericAPIView):
         )
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+def read_time_calculator(data):
+    """This method calculates the read time of an article"""
+    word_count = 0
+    body = data.get('body')
+    word_count += len(body) / settings.WORD_LENGTH
+    result = int(word_count / settings.WORD_PER_MINUTE)
+    if result >= 1:
+        read_time = str(result) + " min read"
+    else:
+        read_time = " less than a minute read"
+    return read_time

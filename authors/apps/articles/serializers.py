@@ -22,6 +22,7 @@ class ArticleSerializer (serializers.ModelSerializer):
             "image",
             "likes",
             "dislikes",
+            "readtime",
         )
         read_only_fields = (
             'author',

@@ -6,6 +6,7 @@ from . import (
     serializers,
     permissions as app_permissions
 )
+from .pagination import ArticlesLimitOffsetPagination
 from .renderers import ArticleJSONRenderer
 from .utils import Utils
 from authors.apps.articles.models import Article, ArticleLikesDislikes, Rating
@@ -15,16 +16,8 @@ from ..profiles.models import Profile
 class ArticlesApiView (generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = serializers.ArticleSerializer
-
-    def get(self, request, format=None):
-        articles = Article.objects.all()
-        serializer = serializers.ArticleSerializer(articles, many=True)
-
-        article_dict = {
-            "articles":  serializer.data,
-            "articleCount": len(list(serializer.data))
-        }
-        return Response(article_dict)
+    queryset = Article.objects.all()
+    pagination_class = ArticlesLimitOffsetPagination
 
     def post(self, request):
         data = request.data.get('article')

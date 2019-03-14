@@ -38,7 +38,7 @@ class TestArticle(ArticlesBaseTest):
        Tests wether an empty list is returned no one has created an article
         """
         response = self.client.get(self.articles_url)
-        self.assertEqual({'articles': [], 'articleCount': 0}, response.data)
+        self.assertIn("('articleCount', 0)", str(response.data))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_retrieve_all_articles(self):

@@ -41,6 +41,8 @@ urlpatterns = [
 
     path('api/', include(('authors.apps.articles.urls',
                       'articles'), namespace='articles')),
+    path('api/', include(('authors.apps.comments.urls',
+                      'comments'), namespace='comments')),
 
     path('apidocs/', schema_view.with_ui('swagger',
                                          cache_timeout=0),

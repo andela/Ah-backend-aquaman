@@ -42,7 +42,11 @@ class ArticleManager(models.Manager):
 
 class Article(models.Model):
     title = models.CharField(max_length=100)
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    author = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name="author_articles"
+    )
     body = models.TextField()
     slug = models.SlugField(unique=True, blank=True)
     description = models.CharField(max_length=100)
@@ -52,12 +56,14 @@ class Article(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=True)
     image = models.URLField(blank=True)
     user_rating = models.CharField(max_length=10, default='0')
-    tagList = ArrayField(models.CharField(
-        max_length=200), default=list, blank=True)
+    tagList = ArrayField(
+        models.CharField(max_length=200),
+        default=list,
+        blank=True,
+    )
     favorites = models.ManyToManyField(Profile, related_name='favorited_articles', blank=True)
     favorited = models.BooleanField(default=False)
     favoritesCount = models.IntegerField(default=0)
-
     objects = ArticleManager()
     class Meta:
         ordering = ['-created_at']

@@ -1,6 +1,8 @@
+from itertools import chain
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework import generics, permissions
 from . import (
     serializers,
@@ -16,8 +18,54 @@ from ..profiles.models import Profile
 class ArticlesApiView (generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = serializers.ArticleSerializer
-    queryset = Article.objects.all()
     pagination_class = ArticlesLimitOffsetPagination
+    queryset = Article.objects.all()
+    search_fields = (
+        'title',
+        'body',
+        'description',
+        'tagList',
+        'author__username',
+        'favorited_articles'
+    )
+
+    def get_queryset(self):
+        queryset = self.queryset
+        tag = self.request.query_params.get('tag', None)
+        keyword = self.request.query_params.get('keyword', None)
+        favorite = self.request.query_params.get('favorite', None)
+        author = self.request.query_params.get('author', None)
+
+        queryset_keyword, queryset_tag, queryset_default, \
+            queryset_favorite, queryset_author = [], [], [], [], []
+
+        if keyword:
+            result = (
+                Q(title__icontains=keyword) |
+                Q(body__icontains=keyword) |
+                Q(description__icontains=keyword)
+            )
+            queryset_keyword = queryset.filter(result)
+
+        elif tag:
+            queryset_tag = queryset.filter(tagList__icontains=tag)
+        elif favorite:
+            queryset_favorite = \
+                queryset.filter(favorites__user__username__icontains=favorite)
+        elif author:
+            queryset_author = \
+                queryset.filter(author__user__username__icontains=author)
+        else:
+            queryset_default = queryset.all()
+
+        queryset = list(chain(
+            queryset_keyword,
+            queryset_tag,
+            queryset_favorite,
+            queryset_author,
+            queryset_default
+        ))
+        return queryset
 
     def post(self, request):
         data = request.data.get('article')
@@ -187,7 +235,8 @@ class ArticleTagsApiView(generics.ListAPIView):
         for tag in Article.get_all_tags():
             merged += tag
         return Response({"tags": set(merged)})
-        
+
+
 class FavoriteHandlerView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated, ]
     renderer_classes = [ArticleJSONRenderer, ]

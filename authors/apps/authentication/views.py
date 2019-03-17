@@ -149,6 +149,7 @@ class ChangePasswordAPIView(generics.GenericAPIView):
     # Allow any user (authenticated or not) to hit this endpoint.
     # then allows users to set password
     permission_classes = (AllowAny,)
+    serializer_class = UserSerializer
 
     def patch(self, request):
         try:

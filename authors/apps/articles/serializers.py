@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Article, ArticleLikesDislikes, Rating
+from authors.apps.comments.models import Comment
 
 from ..profiles.serializers import ProfileSerializer
 
@@ -11,6 +12,7 @@ class ArticleSerializer (serializers.ModelSerializer):
         source="average_rating", required=False)
     read_time = serializers.CharField(max_length=100, read_only=True)
     favorites = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -31,7 +33,8 @@ class ArticleSerializer (serializers.ModelSerializer):
             "read_time",
             "favorited",
             "favorites",
-            "favoritesCount"
+            "favoritesCount",
+            "comments",
         )
         read_only_fields = (
             'author',
@@ -47,6 +50,13 @@ class ArticleSerializer (serializers.ModelSerializer):
         for profile in user_profile:
             user_favorites.append(profile.user.username)
         return user_favorites
+    def get_comments(self,obj):
+        comments = Comment.objects.filter(article=obj)
+        comment_data = []
+        for comment in comments:
+            comment_data.append(comment.body)
+        return comment_data
+
 
 class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
 

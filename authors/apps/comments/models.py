@@ -19,3 +19,11 @@ class Comment(models.Model):
 
     def __str__(self):
         return str(self.body)
+
+class CommentLike(models.Model):
+    comment=models.ForeignKey(Comment, on_delete=models.CASCADE)
+    like_status=models.BooleanField()
+    liked_by=models.ForeignKey(Profile, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.liked_by)

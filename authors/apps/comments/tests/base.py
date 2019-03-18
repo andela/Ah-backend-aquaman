@@ -4,6 +4,7 @@ from ..tests.test_data import (new_user, user_login,
                             post_article, new_user2,
                             user_login2
                             )
+from authors.apps.authentication.models import User
 from authors.apps.articles.models import Article
 
 

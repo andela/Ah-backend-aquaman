@@ -23,13 +23,14 @@ post_article = {
 }
 
 comment = {
-    "body": "This is a comment",
+    "body": "This is a comment"
 }
 
 comment_correct_ranges = {
     "body": "This is a comment",
     "first_highlited": 0,
     "last_highlited": 6
+    
 }
 
 comment_out_of_index = {

@@ -5,10 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 
 from authors.apps.articles.models import Article
 from ..profiles.models import Profile
-
-from .models import Comment
-from .serializers import CommentSerializer
 from .utils import CommentsUtilities
+from .models import Comment, CommentLike
+from .serializers import CommentSerializer, CommentLikeSerializer
 
 
 class CommentCreateListView(generics.ListCreateAPIView):
@@ -26,6 +25,7 @@ class CommentCreateListView(generics.ListCreateAPIView):
         """
         This method allows user to
         comment on an article
+        This method posts a comment to an article
         """
         article = get_object_or_404(Article, slug=slug)
         data = request.data
@@ -58,7 +58,7 @@ class CommentCreateListView(generics.ListCreateAPIView):
             }
 
         return Response({"comment": comment},
-            status=status.HTTP_201_CREATED)
+                        status=status.HTTP_201_CREATED)
 
     def get(self, request, slug):
 
@@ -96,8 +96,8 @@ class CommentsAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, pk, slug):
         """
-        This function allows the user
-        to update a comment he has made
+        This function updates a given comment
+        for an article with given id and slag
         """
         comment = get_object_or_404(Comment, pk=pk)
         article = get_object_or_404(Article, pk=comment.article.pk)
@@ -119,3 +119,59 @@ class CommentsAPIView(generics.RetrieveUpdateDestroyAPIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CommentLikeView(generics.GenericAPIView):
+    serializer_class = CommentLikeSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, *args, **kwargs):
+        """
+        function for liking a comment on a given article
+        """
+        comment = get_object_or_404(Comment, pk=kwargs.get("pk"))
+        user = get_object_or_404(Profile, user=self.request.user)
+        try:
+            CommentLike.objects.get(liked_by=user)
+        except CommentLike.DoesNotExist:
+            serializer = self.serializer_class(data={})
+            serializer.is_valid(raise_exception=True)
+            serializer.save(liked_by=user,
+                            comment=comment, like_status=True)
+            return Response({
+                "message": "comment liked successfully"
+            }, status=status.HTTP_200_OK)
+
+        return Response({
+            "message": "you already liked this comment"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, *args, **kwargs):
+        """
+        Function to retrieve all likes on a comment
+        """
+        comment = get_object_or_404(Comment, pk=kwargs.get("pk"))
+        likes = CommentLike.objects.filter(
+            like_status=True).filter(comment=comment)
+        serializer = self.serializer_class(likes, many=True)
+        return Response({
+            "likes": serializer.data,
+            "likesCount": likes.count()
+        }, status=status.HTTP_200_OK)
+
+    def delete(self, *args, **kwargs):
+        """
+        Function to remove a like from a comment you
+        had already liked
+        """
+        try:
+            user = get_object_or_404(
+                Profile, user=self.request.user)
+            CommentLike.objects.get(liked_by=user)
+        except CommentLike.DoesNotExist:
+            return Response({
+                'message': 'you have not yet liked this comment'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        CommentLike.objects.get(liked_by=user).delete()
+        return Response({
+            "message": "unliked comment successfully"
+        }, status=status.HTTP_200_OK)

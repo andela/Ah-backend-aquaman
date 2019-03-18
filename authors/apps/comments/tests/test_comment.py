@@ -108,8 +108,7 @@ class TestComment(BaseTestCase):
 
     def test_get_all_comments(self):
         """
-            test to get all comments
-
+        test to get all comments
         """
         self.user_access()
         self.posting_article(post_article)

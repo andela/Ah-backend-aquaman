@@ -171,3 +171,12 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
 
 django_heroku.settings(locals())
+
+
+# Reading time configurations
+
+# Number of words read per minute
+WORD_PER_MINUTE = 265
+
+# Standard number of characters in a word
+WORD_LENGTH = 5

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Profile
+from .models import Profile, Follow
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -45,3 +45,9 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
                 "image": instance.image or None,  # put null if no image image url was set
             }
         }
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = ('follower', 'followed', 'followed_at')

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (ProfileRetrieveAPIView,
+from .views import (ProfileRetrieveAPIView, FollowsView, FollowersView,
                     ListAuthorsAPIView, ProfileUpdateAPIView, AuthorsAPIView)
 
 urlpatterns = [
@@ -23,4 +23,12 @@ urlpatterns = [
         AuthorsAPIView.as_view(),
         name="authors_list"
     ),
+    path(
+        'profiles/<username>/follows/',
+        FollowsView.as_view(),
+        name="follow_user"),
+    path(
+        'profiles/<username>/followers/',
+        FollowersView.as_view(),
+        name="get_followers")
 ]

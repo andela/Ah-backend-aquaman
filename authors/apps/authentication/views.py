@@ -124,7 +124,7 @@ class PasswordResetAPIView(generics.GenericAPIView):
             get_object_or_404(User, email=request.data['email'])
             message = [
                 request,
-                "reset-password/change",
+                "reset-password/change/",
                 str((jwt.encode({"email": request.data['email']}, 
                     settings.SECRET_KEY)).decode('utf-8')
                 ),
@@ -147,7 +147,7 @@ class PasswordResetAPIView(generics.GenericAPIView):
 
 class ChangePasswordAPIView(generics.GenericAPIView):
     # Allow any user (authenticated or not) to hit this endpoint.
-    #then allows users to set password
+    # then allows users to set password
     permission_classes = (AllowAny,)
 
     def patch(self, request):

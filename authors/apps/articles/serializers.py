@@ -9,6 +9,7 @@ class ArticleSerializer (serializers.ModelSerializer):
     author = ProfileSerializer(read_only=True)
     user_rating = serializers.CharField(
         source="average_rating", required=False)
+    read_time = serializers.CharField(max_length=100, read_only=True)
 
     class Meta:
         model = Article
@@ -25,7 +26,8 @@ class ArticleSerializer (serializers.ModelSerializer):
             "image",
             "likes",
             "dislikes",
-            "user_rating"
+            "user_rating",
+            "read_time",
         )
         read_only_fields = (
             'author',

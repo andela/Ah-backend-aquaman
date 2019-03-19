@@ -3,7 +3,8 @@ valid_article = {
  
         "title": "When ooh in oo updated  ocean",
         "description": "this is the description,.",
-        "body": "this is the body"
+        "body": "this is the body",
+        "tagList": ["python", "java"]
     }
 
 

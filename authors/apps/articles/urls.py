@@ -3,9 +3,8 @@ from django.urls import path
 from .views import (
         ArticlesApiView, ArticleDetailApiView,
         ArticleLikeApiView, RateArticleView,
-    FavoriteHandlerView, ArticleTagsApiView, ReportArticleView
-        )
-
+        FavoriteHandlerView, ArticleTagsApiView, ReportArticleView,
+        BookmarksApiView,BookmarksListView)
 
 urlpatterns = [
     path('articles/', ArticlesApiView.as_view(), name='articles'),
@@ -31,4 +30,6 @@ urlpatterns = [
     ),
     path('articles/<slug>/favorite', FavoriteHandlerView.as_view(),
     name='article-favorite'),
+    path('articles/<slug>/bookmark/', BookmarksApiView.as_view(), name="bookmark_article"),
+    path('bookmarks/', BookmarksListView.as_view(), name="articles_bookmarked"),
 ]

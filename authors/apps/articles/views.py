@@ -187,10 +187,12 @@ class ArticleTagsApiView(generics.ListAPIView):
         for tag in Article.get_all_tags():
             merged += tag
         return Response({"tags": set(merged)})
-        
+
+
 class FavoriteHandlerView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated, ]
     renderer_classes = [ArticleJSONRenderer, ]
+    serializer_class = serializers.ArticleSerializer
 
     def post(self, request, slug):
         user = request.user

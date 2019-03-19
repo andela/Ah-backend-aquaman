@@ -25,18 +25,21 @@ class SocialAuthView(generics.ListCreateAPIView):
 
 
 class GoogleSocialAuthView(SocialAuthView):
+    serializer_class = GoogleSocialAuthViewSerializer
+
     def post(self, request):
-        serializer_class = GoogleSocialAuthViewSerializer
-        return SocialAuthView.post_data(request, serializer_class)
+        return SocialAuthView.post_data(request, self.serializer_class)
 
 
 class FacebookSocialAuthView(SocialAuthView):
+    serializer_class = FacebookSocialAuthViewSerializer
+
     def post(self, request):
-        serializer_class = FacebookSocialAuthViewSerializer
-        return SocialAuthView.post_data(request, serializer_class)
+        return SocialAuthView.post_data(request, self.serializer_class)
 
 
 class TwitterSocialAuthView(SocialAuthView):
+    serializer_class = TwitterAuthViewSerializer
+
     def post(self, request):
-        serializer_class = TwitterAuthViewSerializer
-        return SocialAuthView.post_data(request, serializer_class)
+        return SocialAuthView.post_data(request, self.serializer_class)

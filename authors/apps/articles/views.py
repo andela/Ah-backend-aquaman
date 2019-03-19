@@ -1,3 +1,4 @@
+from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,6 +12,8 @@ from .renderers import ArticleJSONRenderer
 from .utils import Utils
 from authors.apps.articles.models import Article, ArticleLikesDislikes, Rating
 from ..profiles.models import Profile
+from django.core.mail import send_mail
+import os
 
 
 class ArticlesApiView (generics.ListCreateAPIView):
@@ -188,3 +191,99 @@ class ArticleTagsApiView(generics.ListAPIView):
         for tag in Article.get_all_tags():
             merged += tag
         return Response({"tags": set(merged)})
+
+
+class FacebookShareView(APIView):
+    """
+    sharing an article on facebook
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, slug, **kwargs):
+
+        try:
+            Article.objects.get(slug=slug)
+            # current_site = Site.objects.get_current().domain
+            # print('\n\n\nThe domain is {}'.format(current_site))
+            route = 'api/articles'
+            url = "http://127.0.0.1:8000/{}/{}".format(route, slug)
+            base_url = "https://www.facebook.com/sharer/sharer.php?u="
+            url_link = base_url + url
+
+            return Response(
+                {
+                    "message": "Authors Haven",
+                    "link": url_link
+                },
+                status=status.HTTP_200_OK
+            )
+        except:
+            return Response({
+                "message": "Article not found."
+            }, status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class TwitterShareView(APIView):
+    """
+    sharing an article on twitter
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, slug, **kwargs):
+
+        try:
+            Article.objects.get(slug=slug)
+            base_url = "https://twitter.com/home?status="
+            # current_site = 'http://{}'.format(get_current_site(request))
+            route = 'api/articles'
+            url = "http://127.0.0.1:8000/{}/{}".format(route, slug)
+            url_link = base_url + url
+
+            return Response(
+                {
+                    "message": "Twitterlink",
+                    "link": url_link
+                },
+                status=status.HTTP_200_OK
+            )
+        except:
+            return Response({
+                "message": "Article not found"
+            },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class EmailShareView(APIView):
+    """
+    sharing an article via Email
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, slug):
+
+        article = Article.objects.get(slug=slug)
+        print(article)
+        if not article:
+            return Response({
+                "message": "Article not found"
+            },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        route = 'api/articles'
+        url = "http://127.0.0.1:8000/{}/{}".format(route, slug)
+
+        recipient = request.data.get('email')
+        subject = "Authors Havenz"
+        body = "Click here to read the article {}/".format(url)
+        send_mail(
+            subject, body, 'from_email', [recipient], fail_silently=False)
+
+        return Response(
+            {
+                "message": "Email has been sent to {}".format(recipient),
+                "link": url
+            },
+            status=status.HTTP_200_OK
+        )

@@ -42,6 +42,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "profile": {
                 "username": instance.user.username,
                 "bio": instance.bio,
-                "image": instance.image or None,  # put null if no image image url was set
+                "image": instance.image or None
             }
         }

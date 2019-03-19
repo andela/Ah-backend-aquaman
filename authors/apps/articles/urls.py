@@ -1,8 +1,8 @@
 from django.urls import path
 
 from .views import (
-    ArticlesApiView, ArticleDetailApiView,
-    ArticleTagsApiView,
+    ArticlesApiView, ArticleDetailApiView, TwitterShareView,
+    ArticleTagsApiView, FacebookShareView, EmailShareView,
     ArticleLikeApiView, RateArticleView, ArticleLikeApiView,
 )
 
@@ -24,4 +24,7 @@ urlpatterns = [
         ArticleTagsApiView.as_view(),
         name='article-tags'
     ),
+    path('articles/<slug>/facebook/', FacebookShareView.as_view()),
+    path('articles/<slug>/twitter/', TwitterShareView.as_view()),
+    path('articles/<slug>/email/', EmailShareView.as_view()),
 ]

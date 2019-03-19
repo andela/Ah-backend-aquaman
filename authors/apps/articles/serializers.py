@@ -54,11 +54,14 @@ class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
             'user': {'write_only': True},
             'article': {'write_only': True},
         }
+
+
 class RatingSerializer(serializers.ModelSerializer):
     article = serializers.SerializerMethodField()
     rated_by = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
-    score = serializers.DecimalField(required=True, max_digits=5, decimal_places=2)
+    score = serializers.DecimalField(
+        required=True, max_digits=5, decimal_places=2)
 
     class Meta:
         model = Rating
@@ -73,3 +76,9 @@ class RatingSerializer(serializers.ModelSerializer):
     def get_rated_by(self, obj):
         return obj.rated_by.username
 
+
+class EmailShareSerializer(serializers.Serializer):
+    email = serializers.CharField(max_length=255)
+
+    class Meta:
+        fields = ('email', )

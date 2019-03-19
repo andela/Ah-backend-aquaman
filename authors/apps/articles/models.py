@@ -4,7 +4,6 @@ from django.contrib.postgres.fields import ArrayField
 from rest_framework.response import Response
 from rest_framework import status
 from authors.apps.profiles.models import Profile
-from django.contrib.postgres.fields import ArrayField
 
 from authors.settings import WORD_LENGTH, WORD_PER_MINUTE
 
@@ -14,8 +13,9 @@ class ArticleManager(models.Manager):
     In our article manager we are going to specify
     methods relating to how to handle favoriting an article
     """
+
     def handle_favorite_an_article(self, user_obj, slug):
-        
+
         user_profile = Profile.objects.filter(user=user_obj).first()
         article_to_favorite = self.model.objects.filter(slug=slug).first()
         article_to_favorite.favoritesCount = article_to_favorite.favorites.count() + 1
@@ -23,8 +23,8 @@ class ArticleManager(models.Manager):
         article_to_favorite.favorites.add(user_profile)
         article_to_favorite.save()
         return Response({
-            "message": "Article has been added to favorites"
-        },status=status.HTTP_201_CREATED)
+            "message": "Article has been added to favorites"},
+                        status=status.HTTP_201_CREATED)
 
     def unfavorite_an_article(self, request_user, slug):
         article_slug = slug
@@ -36,12 +36,11 @@ class ArticleManager(models.Manager):
             unfavorite_article.favorites.remove(user_)
             unfavorite_article.favorited =  unfavorite_article.favorites.count() > 0
             unfavorite_article.save()
-            return Response({
-            "message": "Article has been removed from favorites"
-        },status=status.HTTP_200_OK)
+            return Response({"message": "Article has been removed from favorites"},
+                            status=status.HTTP_200_OK)
 
 class Article(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=255)
     author = models.ForeignKey(
         Profile,
         on_delete=models.CASCADE,
@@ -49,7 +48,7 @@ class Article(models.Model):
     )
     body = models.TextField()
     slug = models.SlugField(unique=True, blank=True)
-    description = models.CharField(max_length=100)
+    description = models.CharField(max_length=255)
     likes = models.IntegerField(default=0)
     dislikes = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -23,7 +23,7 @@ class TestRatingArticle(ArticlesBaseTest):
         article = Article.objects.all().first()
         response = self.client.post(
             reverse("articles:rating", kwargs={'slug': article.slug}),
-            data={"article": {"score": 3}},
+            data={"score": 3},
             format="json"
         )
         data = response.data
@@ -39,7 +39,7 @@ class TestRatingArticle(ArticlesBaseTest):
         self.register_and_login_new_user()
         response = self.client.post(
             reverse("articles:rating", kwargs={'slug': article.slug}),
-            data={"article": {"score": 3}},
+            data={"score": 3},
             format="json"
         )
         data = response.data
@@ -55,7 +55,7 @@ class TestRatingArticle(ArticlesBaseTest):
         self.register_and_login_new_user()
         response = self.client.post(
             reverse("articles:rating", kwargs={'slug': article.slug}),
-            data={"article": {"score": 6}},
+            data={"score": 6},
             format="json"
         )
         data = response.data
@@ -70,7 +70,7 @@ class TestRatingArticle(ArticlesBaseTest):
         self.register_and_login_new_user()
         response = self.client.post(
             reverse("articles:rating", kwargs={'slug': "tommy"}),
-            data={"article": {"score": 3}},
+            data={"score": 3},
             format="json"
         )
         self.assertEqual(response.status_code, 404)
@@ -86,13 +86,13 @@ class TestRatingArticle(ArticlesBaseTest):
         self.register_and_login_new_user()
         self.client.post(
             reverse("articles:rating", kwargs={'slug': article.slug}),
-            data={"article": {"score": 3}},
+            data={"score": 3},
             format="json"
         )
         "Second rating"
         response = self.client.post(
             reverse("articles:rating", kwargs={'slug': article.slug}),
-            data={"article": {"score": 3}},
+            data={"score": 3},
             format="json"
         )
         data = response.data

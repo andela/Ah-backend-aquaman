@@ -10,12 +10,11 @@ from rest_framework.response import Response
 from .models import User
 from .renderers import UserJSONRenderer
 from .serializers import (
-    LoginSerializer, RegistrationSerializer, UserSerializer
+    LoginSerializer, RegistrationSerializer, UserSerializer,
+    ResetPasswordSerializer, ChangePasswordSerializer
 )
 
 from ..core.utils import Utilities
-
-
 
 
 class RegistrationAPIView(generics.GenericAPIView):
@@ -25,7 +24,7 @@ class RegistrationAPIView(generics.GenericAPIView):
     serializer_class = RegistrationSerializer
 
     def post(self, request):
-        user = request.data.get('user', {})
+        user = request.data
 
         # The create serializer, validate serializer, save serializer pattern
         # below is common and you will see it a lot throughout this course and
@@ -53,7 +52,7 @@ class LoginAPIView(generics.GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
-        user = request.data.get('user', {})
+        user = request.data
 
         # Notice here that we do not call `serializer.save()` like we did for
         # the registration endpoint. This is because we don't actually have
@@ -79,7 +78,7 @@ class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
-        serializer_data = request.data.get('user', {})
+        serializer_data = request.data
 
         # Here is that serialize, validate, save pattern we talked about
         # before.
@@ -106,7 +105,7 @@ class EmailVerifyAPIView(generics.GenericAPIView):
         user.is_verified = True
         user.save()
         return self.sendResponse(
-            "Your Email has been verified,you can now login", 
+            "Your Email has been verified,you can now login",
             status.HTTP_200_OK
         )
 
@@ -118,6 +117,7 @@ class PasswordResetAPIView(generics.GenericAPIView):
     # Allow any user (authenticated or not) to hit this endpoint.
     #then send rest password link
     permission_classes = (AllowAny,)
+    serializer_class = ResetPasswordSerializer
 
     def post(self, request):
         try:
@@ -125,7 +125,7 @@ class PasswordResetAPIView(generics.GenericAPIView):
             message = [
                 request,
                 "reset-password/change/",
-                str((jwt.encode({"email": request.data['email']}, 
+                str((jwt.encode({"email": request.data['email']},
                     settings.SECRET_KEY)).decode('utf-8')
                 ),
                 "Reset Password",
@@ -149,7 +149,7 @@ class ChangePasswordAPIView(generics.GenericAPIView):
     # Allow any user (authenticated or not) to hit this endpoint.
     # then allows users to set password
     permission_classes = (AllowAny,)
-    serializer_class = UserSerializer
+    serializer_class = ChangePasswordSerializer
 
     def patch(self, request):
         try:

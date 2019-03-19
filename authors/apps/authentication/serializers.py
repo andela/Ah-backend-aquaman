@@ -186,3 +186,17 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.CharField(max_length=255)
+
+    class Meta:
+        fields = ('email', )
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(max_length=128, write_only=True)
+
+    class Meta:
+        fields = ('password', )

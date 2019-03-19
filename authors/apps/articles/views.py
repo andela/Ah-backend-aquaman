@@ -68,7 +68,7 @@ class ArticlesApiView (generics.ListCreateAPIView):
         return queryset
 
     def post(self, request):
-        data = request.data.get('article')
+        data = request.data
         serializer = self.serializer_class(
             data=data,
             context={"request": request}
@@ -101,7 +101,7 @@ class ArticleDetailApiView (generics.GenericAPIView):
 
     def patch(self, request, slug):
         data = request.data
-        article_data = data.get('article') if "article" in data else data
+        article_data = data
         article = self.get_object(slug)
         context = {"request": request}
         if article:
@@ -196,7 +196,7 @@ class RateArticleView(generics.GenericAPIView):
     def post(self, request, slug):
 
         user = request.user
-        score_data = request.data.get("article", {})
+        score_data = request.data
 
         score = score_data.get("score", 0)
         article = get_object_or_404(Article, slug=slug)
@@ -240,6 +240,7 @@ class ArticleTagsApiView(generics.ListAPIView):
 class FavoriteHandlerView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated, ]
     renderer_classes = [ArticleJSONRenderer, ]
+    serializer_class = serializers.ArticleSerializer
 
     def post(self, request, slug):
         user = request.user

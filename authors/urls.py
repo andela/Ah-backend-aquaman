@@ -47,7 +47,7 @@ urlpatterns = [
     path('apidocs/', schema_view.with_ui('swagger',
                                          cache_timeout=0),
          name='schema-swagger-ui'),
-    path('docs/', include_docs_urls(
+    path('', include_docs_urls(
         title="AQUAMAN AUTHOR'S HAVEN API",
         description="A place where different authors pen down their thoughts")),
     path('api/social/', include('authors.apps.social_auth.urls')),

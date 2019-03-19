@@ -9,7 +9,7 @@ class ArticleSerializer (serializers.ModelSerializer):
 
     author = ProfileSerializer(read_only=True)
     user_rating = serializers.CharField(
-        source="average_rating", required=False)
+        source="average_rating", required=False,read_only=True)
     read_time = serializers.CharField(max_length=100, read_only=True)
     favorites = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
@@ -41,7 +41,15 @@ class ArticleSerializer (serializers.ModelSerializer):
             'slug',
             'created_at',
             'updated_at',
+            "favorited",
+            "favorites",
             'user_rating',
+            "favoritesCount",
+            "likes",
+            "dislikes",
+            "read_time",
+            "comments",
+
         )
 
     def get_favorites(self, obj):

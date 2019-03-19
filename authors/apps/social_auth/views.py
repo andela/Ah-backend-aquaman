@@ -5,7 +5,7 @@ from rest_framework import generics
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from authors.apps.social_auth.register import UserJSONRenderer
-from authors.apps.social_auth.serializers import\
+from authors.apps.social_auth.serializers import \
     FacebookSocialAuthViewSerializer,\
     GoogleSocialAuthViewSerializer,\
     TwitterAuthViewSerializer
@@ -25,18 +25,21 @@ class SocialAuthView(generics.ListCreateAPIView):
 
 
 class GoogleSocialAuthView(SocialAuthView):
+    serializer_class = GoogleSocialAuthViewSerializer
+
     def post(self, request):
-        serializer_class = GoogleSocialAuthViewSerializer
-        return SocialAuthView.post_data(request, serializer_class)
+        return SocialAuthView.post_data(request, self.serializer_class)
 
 
 class FacebookSocialAuthView(SocialAuthView):
+    serializer_class = FacebookSocialAuthViewSerializer
+
     def post(self, request):
-        serializer_class = FacebookSocialAuthViewSerializer
-        return SocialAuthView.post_data(request, serializer_class)
+        return SocialAuthView.post_data(request, self.serializer_class)
 
 
 class TwitterSocialAuthView(SocialAuthView):
+    serializer_class = TwitterAuthViewSerializer
+
     def post(self, request):
-        serializer_class = TwitterAuthViewSerializer
-        return SocialAuthView.post_data(request, serializer_class)
+        return SocialAuthView.post_data(request, self.serializer_class)

@@ -15,6 +15,8 @@ from .utils import Utils
 from authors.apps.articles.models import Article, ArticleLikesDislikes, Rating, Bookmark
 from ..profiles.models import Profile
 from authors.apps.core.utils import Utilities
+from ..profiles.models import Follow
+from ..notifications.utils import NotificationRenderer
 
 
 class ArticlesApiView (generics.ListCreateAPIView):
@@ -43,10 +45,7 @@ class ArticlesApiView (generics.ListCreateAPIView):
 
         if keyword:
             result = (
-                Q(title__icontains=keyword) |
-                Q(body__icontains=keyword) |
-                Q(description__icontains=keyword)
-            )
+                Q(title__icontains=keyword) | Q(body__icontains=keyword) | Q(description__icontains=keyword))
             queryset_keyword = queryset.filter(result)
 
         elif tag:
@@ -60,13 +59,7 @@ class ArticlesApiView (generics.ListCreateAPIView):
         else:
             queryset_default = queryset.all()
 
-        queryset = list(chain(
-            queryset_keyword,
-            queryset_tag,
-            queryset_favorite,
-            queryset_author,
-            queryset_default
-        ))
+        queryset = list(chain(queryset_keyword,queryset_tag,queryset_favorite,queryset_author,queryset_default))
         return queryset
 
     def post(self, request):
@@ -75,6 +68,16 @@ class ArticlesApiView (generics.ListCreateAPIView):
         serializer.save(author=Profile.objects.filter(user=request.user).first(),
                         slug=Utils.create_slug(request.data['title']))
 
+        followers = Follow.objects.filter(followed_id=request.user.id)
+
+        notification = {
+            "title": "Article published",
+            "body": "{} published an article {}".format(request.user.username, request.data['title']) + \
+                "\n" + request.data['body'],
+        }
+        NotificationRenderer.send_notification(
+            list(followers.values_list('follower__email', flat=True)), notification
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -89,7 +92,6 @@ class ArticleDetailApiView (generics.GenericAPIView):
         if not article:
             return Response({'errors': 'that article was not found'}, status=status.HTTP_404_NOT_FOUND)
         serialized_data = self.serializer_class(article, context=context)
-
         return Response(serialized_data.data, status=status.HTTP_200_OK)
 
     def patch(self, request, slug):
@@ -186,9 +188,7 @@ class RateArticleView(generics.GenericAPIView):
             return Response({"message": "You can not rate your own article"}, status=status.HTTP_403_FORBIDDEN)
 
         try:
-            Rating.objects.get(rated_by_id=user.pk,
-                               article_id=article.pk,
-                               score=score)
+            Rating.objects.get(rated_by_id=user.pk, article_id=article.pk, score=score)
             return Response({"message": "You have already rated the article"},
                             status=status.HTTP_200_OK)
         except Rating.DoesNotExist:

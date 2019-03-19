@@ -13,8 +13,8 @@ from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer,
     ResetPasswordSerializer, ChangePasswordSerializer
 )
-
 from ..core.utils import Utilities
+from ..notifications.views import NotificationSettingsAPIView
 
 
 class RegistrationAPIView(generics.GenericAPIView):
@@ -42,7 +42,8 @@ class RegistrationAPIView(generics.GenericAPIView):
             user_data['email']
         ]
         Utilities.send_email(message,'auth')
-
+        users = User.objects.filter(email=user_data['email']).first()
+        NotificationSettingsAPIView().create(users.email)
         return Response(user_data, status=status.HTTP_201_CREATED)
 
 

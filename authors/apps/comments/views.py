@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import generics, serializers, status
 from rest_framework.permissions import IsAuthenticated
+from ..notifications.utils import NotificationRenderer
 
 from authors.apps.articles.models import Article
 from ..profiles.models import Profile
@@ -12,9 +13,7 @@ from .serializers import CommentSerializer, CommentLikeSerializer
 
 class CommentCreateListView(generics.ListCreateAPIView):
     """
-
     create comments and retrieve comments
-
     """
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticated, )
@@ -56,9 +55,16 @@ class CommentCreateListView(generics.ListCreateAPIView):
                 "article": serializer.data['article'],
                 "id": serializer.data['id']
             }
-
-        return Response({"comment": comment},
-                        status=status.HTTP_201_CREATED)
+            notification = {
+                "title": "Article comments",
+                "body": "{} commented on an article {}".format(author.user.username, article.title) + \
+                    "\n" + serializer.data['body'],
+            }
+            NotificationRenderer.send_notification(
+                article.favorites.values_list('user__email', flat=True),
+                notification
+            )
+        return Response({"comment": comment}, status=status.HTTP_201_CREATED)
 
     def get(self, request, slug):
 

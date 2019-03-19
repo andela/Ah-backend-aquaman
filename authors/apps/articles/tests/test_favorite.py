@@ -26,6 +26,17 @@ class TestRatingArticle(ArticlesBaseTest):
         self.assertEqual(response.status_code, 403)
         self.assertIn("article", response.json())
 
+    def test_favorite_article(self):
+        """
+        method to test favorating an article
+        """
+        self.add_other_article()
+        article = Article.objects.filter(author__user__username="crycetruly").first()
+        response = self.client.post(
+            reverse("articles:article-favorite", kwargs={'slug': article.slug})
+        )
+        self.assertEqual(response.status_code, 201)
+
     def test_rate_someones_article(self):
         """
         method to test favorating someone's article

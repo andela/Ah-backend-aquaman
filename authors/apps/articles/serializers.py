@@ -2,6 +2,8 @@ from rest_framework import serializers
 from authors.apps.comments.models import Comment
 from .models import Article, ArticleLikesDislikes, Rating, ReportedArticle
 
+from .models import Article, ArticleLikesDislikes, Rating, Bookmark
+
 from ..profiles.serializers import ProfileSerializer
 
 
@@ -114,3 +116,9 @@ class ReportedArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportedArticle
         fields = ('id', 'reporter', 'article', 'reason',)
+class BookmarkSerializer(serializers.ModelSerializer):
+    article = ArticleSerializer(read_only=True)
+
+    class Meta:
+        model = Bookmark
+        fields = ('id', 'article', 'bookmarked_at',)

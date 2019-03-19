@@ -3,6 +3,8 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from rest_framework.response import Response
 from rest_framework import status
+
+from authors.apps.authentication.models import User
 from authors.apps.profiles.models import Profile
 
 from authors.settings import WORD_LENGTH, WORD_PER_MINUTE
@@ -135,3 +137,8 @@ class ReportedArticle(models.Model):
 
     def __str__(self):
         return self.reason
+class Bookmark(models.Model):
+    """Model for creating bookmarks of an article by a user."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    bookmarked_at = models.DateTimeField(auto_now_add=True)

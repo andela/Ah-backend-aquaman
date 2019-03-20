@@ -174,4 +174,33 @@ class CommentLikeView(generics.GenericAPIView):
         CommentLike.objects.get(liked_by=user).delete()
         return Response({
             "message": "unliked comment successfully"
+            }, status=status.HTTP_200_OK)
+
+class CommentEditHistoryAPIView(generics.GenericAPIView):
+    """This class handles returning edit history for a comment
+    that a user created on a particular article
+    """
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, slug, pk):
+        comment = get_object_or_404(Comment, id=pk)
+        comment_history = comment.comment_history.all()
+        edit_history = []
+        for edit in list(comment_history):
+            
+            comment_edit_history = {
+                "date": edit.history_date,
+                "id": edit.history_id,
+                "comment_body": edit.body
+            }
+            edit_history.append(comment_edit_history)
+        comment = Comment.objects.get(pk=pk)
+        if comment.commented_by.user != request.user:
+            return Response({
+                'message': 
+                "You didn't create this comment Access Denied"
+            }, status=status.HTTP_403_FORBIDDEN)
+        return Response({
+            "history": edit_history,
+            "number_of_edits": len(edit_history) - 1
         }, status=status.HTTP_200_OK)

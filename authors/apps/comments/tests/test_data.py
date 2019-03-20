@@ -23,24 +23,41 @@ post_article = {
 }
 
 comment = {
-    "comment": {
-        "body": "This is a comment",
-    }
+    "body": "This is a comment",
+}
+
+comment_correct_ranges = {
+    "body": "This is a comment",
+    "first_highlited": 0,
+    "last_highlited": 6
+}
+
+comment_out_of_index = {
+    "body": "This is a comment",
+    "first_highlited": 10000,
+    "last_highlited": 60000
+}
+
+comment_greater_value = {
+    "body": "This is a comment",
+    "first_highlited": 5,
+    "last_highlited": 4
+}
+
+comment_not_interger_value = {
+    "body": "This is a comment",
+    "first_highlited": '5',
+    "last_highlited": 4
 }
 
 update_comment = {
-    "comment": {
-        "body": "this is a test"
-    }
+    "body": "this is a test"
 }
 
 user_login = {
-
-        "email": "testuser@gmail.com", "password": "testing123"
-        }
-
+    "email": "testuser@gmail.com", "password": "testing123"
+}
 
 user_login2 = {
-
-        "email": "tommy@gmail.com", "password": "testing123"
-        }
+    "email": "tommy@gmail.com", "password": "testing123"
+}

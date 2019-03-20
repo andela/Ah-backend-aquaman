@@ -8,12 +8,13 @@ from ..profiles.models import Profile
 
 from .models import Comment
 from .serializers import CommentSerializer
+from .utils import CommentsUtilities
 
 
 class CommentCreateListView(generics.ListCreateAPIView):
     """
 
-    create comments and retrieve comments 
+    create comments and retrieve comments
 
     """
     serializer_class = CommentSerializer
@@ -27,13 +28,36 @@ class CommentCreateListView(generics.ListCreateAPIView):
         comment on an article
         """
         article = get_object_or_404(Article, slug=slug)
-        data = request.data.get('comment')
+        data = request.data
         author = Profile.objects.get(user=request.user)
+
+        check = CommentsUtilities.check_for_highlited_range(
+            request.data,
+            article.body, data
+        )
+
+        if isinstance(check, dict):
+            data = check
+        else:
+            return check
 
         serializer = self.serializer_class(data=data, context={'article': article})
         serializer.is_valid(raise_exception=True)
         serializer.save(commented_by=author, article=article)
-        return Response({"comment":serializer.data},
+
+        if "first_highlited" in request.data and "last_highlited" in request.data:
+            comment = serializer.data
+        else:
+            comment = {
+                "created_at": serializer.data['created_at'],
+                "updated_at": serializer.data['updated_at'],
+                "commented_by": serializer.data['commented_by'],
+                "body": serializer.data['body'],
+                "article": serializer.data['article'],
+                "id": serializer.data['id']
+            }
+
+        return Response({"comment": comment},
             status=status.HTTP_201_CREATED)
 
     def get(self, request, slug):
@@ -78,7 +102,7 @@ class CommentsAPIView(generics.RetrieveUpdateDestroyAPIView):
         comment = get_object_or_404(Comment, pk=pk)
         article = get_object_or_404(Article, pk=comment.article.pk)
         user = Profile.objects.get(user=request.user)
-        data = request.data.get("comment")
+        data = request.data
 
         if comment.commented_by != user:
             return Response({

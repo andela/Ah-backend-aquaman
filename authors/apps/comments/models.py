@@ -1,6 +1,7 @@
 from django.db import models
 from authors.apps.articles.models import Article
 from authors.apps.profiles.models import Profile
+from simple_history.models import HistoricalRecords
 
 
 class Comment(models.Model):
@@ -16,6 +17,7 @@ class Comment(models.Model):
     highlighted_text = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    comment_history = HistoricalRecords()
 
     def __str__(self):
         return str(self.body)

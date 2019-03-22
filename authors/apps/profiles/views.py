@@ -122,7 +122,7 @@ class FollowsView(generics.CreateAPIView, generics.DestroyAPIView):
         return Response(
             {'message': 'You have successfully unfollowed {}.'.format(
                 username)},
-            status=status.HTTP_204_NO_CONTENT)
+            status=status.HTTP_200_OK)
 
     def get(self, request, username):
         """

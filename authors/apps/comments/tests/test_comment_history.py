@@ -29,7 +29,7 @@ class TestComment(BaseTestCase):
         res = self.client.post(url, data=comment, format="json")
         data = res.data
         comment_id = data["comment"]["id"]
-        fetch_url = reverse("comments:comment_history", kwargs={'slug':slug,'pk':comment_id})
+        fetch_url = reverse("comments:comment_history", kwargs={'pk':comment_id})
         response = self.client.get(fetch_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(comment["body"], 
@@ -49,7 +49,7 @@ class TestComment(BaseTestCase):
         comment_id = data["comment"]["id"]
         update_url = reverse("comments:single_comment", kwargs={"slug":slug, "pk":comment_id})
         self.client.put(update_url, data=update_comment, format="json")
-        fetch_url = reverse("comments:comment_history", kwargs={'slug':slug,'pk':comment_id})
+        fetch_url = reverse("comments:comment_history", kwargs={'pk':comment_id})
         response = self.client.get(fetch_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(update_comment["body"],
@@ -67,7 +67,7 @@ class TestComment(BaseTestCase):
         res = self.client.post(url, data=comment, format="json")
         data = res.data
         comment_id = data["comment"]["id"]
-        fetch_url = reverse("comments:comment_history", kwargs={'slug':slug,'pk':comment_id})
+        fetch_url = reverse("comments:comment_history", kwargs={'pk':comment_id})
         self.user_access2()
         response = self.client.get(fetch_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -83,7 +83,7 @@ class TestComment(BaseTestCase):
         slug = self.article_slug()
         url = reverse("comments:post_comment", kwargs={'slug': slug})
         self.client.post(url, data=comment, format="json")
-        fetch_url = reverse("comments:comment_history", kwargs={'slug':slug,'pk':4})
+        fetch_url = reverse("comments:comment_history", kwargs={'pk':4})
         response = self.client.get(fetch_url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertIn("Not found", response.data["detail"])

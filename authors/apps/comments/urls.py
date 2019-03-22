@@ -14,11 +14,11 @@ urlpatterns = [
         CommentsAPIView.as_view(),
         name='single_comment'),
     path(
-        '<slug>/comments/<int:pk>/like/',
+        'comments/<int:pk>/like/',
          CommentLikeView.as_view(),
          name='comment-like'),
     path(
-        '<slug>/comments/<int:pk>/history',
+        'comments/<int:pk>/history',
         CommentEditHistoryAPIView.as_view(),
         name='comment_history'),
     

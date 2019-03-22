@@ -47,7 +47,7 @@ class FollowUsersTests(BaseTestCase):
                       'username': new_user_2['username']})
         self.client.post(url, format='json')
         response = self.client.delete(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('You have successfully unfollowed ' +
                       str(new_user_2['username']), str(response.data))
 

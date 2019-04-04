@@ -136,8 +136,8 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:4000',
     'localhost:3000',
     'localhost:8080',
-    'https://ah-aquaman-frontend-staging.herokuapp.com/',
-    'https://ah-aquaman-frontend-stagi-pr-9.herokuapp.com/',
+    'ah-aquaman-frontend-staging.herokuapp.com',
+    'ah-aquaman-frontend-stagi-pr-9.herokuapp.com',
 
 )
 

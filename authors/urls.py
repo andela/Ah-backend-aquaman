@@ -52,4 +52,12 @@ urlpatterns = [
         title="AQUAMAN AUTHOR'S HAVEN API",
         description="A place where different authors pen down their thoughts")),
     path('api/social/', include('authors.apps.social_auth.urls')),
+
+    path(
+        'api/',
+        include(
+            ('authors.apps.notifications.urls', 'notifications'),
+            namespace='notification'
+        )
+    ),
 ]

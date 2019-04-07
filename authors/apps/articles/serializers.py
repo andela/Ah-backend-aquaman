@@ -64,7 +64,7 @@ class ArticleSerializer (serializers.ModelSerializer):
         comments = Comment.objects.filter(article=obj)
         comment_data = []
         for comment in comments:
-            comment_data.append(comment.body)
+            comment_data.append({"comment":comment.body, "author":comment.commented_by.user.username})
         return comment_data
 
 

@@ -182,7 +182,7 @@ class CommentEditHistoryAPIView(generics.GenericAPIView):
     """
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, slug, pk):
+    def get(self, request, pk):
         comment = get_object_or_404(Comment, id=pk)
         comment_history = comment.comment_history.all()
         edit_history = []

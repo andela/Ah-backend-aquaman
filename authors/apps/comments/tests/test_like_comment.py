@@ -27,7 +27,7 @@ class TestComment(BaseTestCase):
         res = self.client.post(url, data=comment, format="json")
         data = res.data
         comment_id = data["comment"]["id"]
-        fetch_url = reverse("comments:comment-like", kwargs={"slug":slug, "pk":comment_id})
+        fetch_url = reverse("comments:comment-like", kwargs={"pk":comment_id})
         response = self.client.put(fetch_url)
         data = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -44,7 +44,7 @@ class TestComment(BaseTestCase):
         res = self.client.post(url, data=comment, format="json")
         data = res.data
         comment_id = data["comment"]["id"]
-        fetch_url = reverse("comments:comment-like", kwargs={"slug":slug, "pk":comment_id})
+        fetch_url = reverse("comments:comment-like", kwargs={"pk":comment_id})
         self.client.put(fetch_url)
         response = self.client.put(fetch_url)
         data = response.data
@@ -62,7 +62,7 @@ class TestComment(BaseTestCase):
         res = self.client.post(url, data=comment, format="json")
         data = res.data
         comment_id = data["comment"]["id"]
-        fetch_url = reverse("comments:comment-like", kwargs={"slug":slug, "pk":comment_id})
+        fetch_url = reverse("comments:comment-like", kwargs={"pk":comment_id})
         self.client.put(fetch_url)
         response = self.client.get(fetch_url)
         data = response.data
@@ -80,7 +80,7 @@ class TestComment(BaseTestCase):
         res = self.client.post(url, data=comment, format="json")
         data = res.data
         comment_id = data["comment"]["id"]
-        fetch_url = reverse("comments:comment-like", kwargs={"slug":slug, "pk":comment_id})
+        fetch_url = reverse("comments:comment-like", kwargs={"pk":comment_id})
         self.client.put(fetch_url)
         response = self.client.delete(fetch_url)
         data = response.data
@@ -98,7 +98,7 @@ class TestComment(BaseTestCase):
         res = self.client.post(url, data=comment, format="json")
         data = res.data
         comment_id = data["comment"]["id"]
-        fetch_url = reverse("comments:comment-like", kwargs={"slug":slug, "pk":comment_id})
+        fetch_url = reverse("comments:comment-like", kwargs={"pk":comment_id})
         response = self.client.delete(fetch_url)
         data = response.data
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

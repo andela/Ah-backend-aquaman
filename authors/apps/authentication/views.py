@@ -1,12 +1,10 @@
 from rest_framework import status, generics, exceptions
 import jwt
 from django.conf import settings
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-
+from django.contrib.sites.shortcuts import get_current_site
 from .models import User
 from .renderers import UserJSONRenderer
 from .serializers import (
@@ -41,7 +39,7 @@ class RegistrationAPIView(generics.GenericAPIView):
             "created an account on Authors heaven.",
             user_data['email']
         ]
-        Utilities.send_email(message,'auth')
+        Utilities.send_email(message,None,'auth')
 
         return Response(user_data, status=status.HTTP_201_CREATED)
 
@@ -120,6 +118,9 @@ class PasswordResetAPIView(generics.GenericAPIView):
     serializer_class = ResetPasswordSerializer
 
     def post(self, request):
+        domain=request.META.get('HTTP_ORIGIN', get_current_site(request).domain)
+
+
         try:
             get_object_or_404(User, email=request.data['email'])
             message = [
@@ -132,7 +133,9 @@ class PasswordResetAPIView(generics.GenericAPIView):
                 "requested for password reset.",
                 request.data['email']
             ]
-            Utilities.send_email(message,'auth')
+
+
+            Utilities.send_email(message,domain,'password_rest')
             return Response(
                 {
                     "message": "Please check your email for the reset password link."
@@ -173,7 +176,7 @@ class ChangePasswordAPIView(generics.GenericAPIView):
                 status.HTTP_400_BAD_REQUEST
             )
         except KeyError:
-            raise exceptions.ValidationError("Password feild is required.")
+            raise exceptions.ValidationError("Password field is required.")
         except jwt.ExpiredSignatureError:
             return Response({
                 "error": "verification link is expired"},

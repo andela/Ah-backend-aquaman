@@ -258,7 +258,7 @@ class ReportArticleView(generics.GenericAPIView):
         data = {"subject": "[Article Reported]", "to":
                 serializer.data['article']['author']['email'],
                 "body": f"Your article was reported,These are the details:\n{data['reason']}"}
-        Utilities.send_email(data, 'article_reports')
+        Utilities.send_email(data,None,'article_reports')
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

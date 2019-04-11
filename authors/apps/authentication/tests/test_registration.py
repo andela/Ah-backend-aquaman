@@ -67,8 +67,7 @@ class UserRegistrationTest(BaseTest):
         response = self.client.get(self.verify_url+"?token=" +
                                    register_response.data['token'], format='json')
         self.assertEqual(
-            response.data['message'], 'Your Email has been verified,you can now login')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+            response.status_code,302)
 
     def test_user_cant_activate_with_expired_token(self):
         """Tests if a user cannot activate email with an invalid token."""

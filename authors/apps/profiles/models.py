@@ -41,4 +41,4 @@ post_save.connect(user_post_save_receiver, sender=User)
 class Follow(models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE)
     followed = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    followed_at = models.DateTimeField(default=datetime.now, blank=True)
+    followed_at = models.DateTimeField(auto_now_add=True, blank=True)

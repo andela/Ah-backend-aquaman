@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from django.contrib.sites.shortcuts import get_current_site
 from .models import User
 from .renderers import UserJSONRenderer
+import os
+from django.http import HttpResponseRedirect
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer,
     ResetPasswordSerializer, ChangePasswordSerializer
@@ -98,14 +100,11 @@ class EmailVerifyAPIView(generics.GenericAPIView):
             return self.sendResponse("verification link is invalid")
         except jwt.ExpiredSignatureError:
             return self.sendResponse("verification link is expired")
-
         user = User.objects.filter(email=payload.get('email')).first()
         user.is_verified = True
         user.save()
-        return self.sendResponse(
-            "Your Email has been verified,you can now login",
-            status.HTTP_200_OK
-        )
+        domain = os.environ.get('FRONT_END_URL','localhost')
+        return HttpResponseRedirect(domain)
 
     def sendResponse(self, message, status=status.HTTP_400_BAD_REQUEST):
         return Response({"message": message}, status)

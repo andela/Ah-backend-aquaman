@@ -9,9 +9,6 @@ from .permissions import IsOwnerOrReadOnly
 from .renderers import ProfileJSONRenderer
 from .serializers import \
     ProfileSerializer, ProfileUpdateSerializer, FollowSerializer
-import datetime
-
-
 class ProfileRetrieveAPIView(generics.RetrieveAPIView):
     """
       Implements user's profile endpoint.

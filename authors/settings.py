@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
 
     'corsheaders',
     'django_extensions',
@@ -45,6 +46,8 @@ INSTALLED_APPS = [
     'authors.apps.authentication',
     'authors.apps.core',
     'authors.apps.profiles',
+    'authors.apps.articles',
+    'authors.apps.comments',
 ]
 
 MIDDLEWARE = [
@@ -131,6 +134,11 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_WHITELIST = (
     '0.0.0.0:4000',
     'localhost:4000',
+    'localhost:3000',
+    'localhost:8080',
+    'ah-aquaman-frontend-staging.herokuapp.com',
+    'ah-aquaman-frontend-stagi-pr-9.herokuapp.com',
+
 )
 
 # Tell Django about the custom `User` model we created. The string
@@ -146,6 +154,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'authors.apps.authentication.backends.JWTAuthentication',
     ),
+
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    )
 }
 
 SWAGGER_SETTINGS = {
@@ -170,3 +182,12 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
 
 django_heroku.settings(locals())
+
+
+# Reading time configurations
+
+# Number of words read per minute
+WORD_PER_MINUTE = 265
+
+# Standard number of characters in a word
+WORD_LENGTH = 5

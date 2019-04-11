@@ -1,17 +1,17 @@
 new_user = {
-    "user": {
+
         "username": "testuser12",
         "email": "testuser@gmail.com",
         "password": "testing123"
-    }
+
 }
 
 new_user_2 = {
-    "user": {
+
         "username": "testuser123",
         "email": "testuser3@gmail.com",
         "password": "testing123"
-    }
+
 }
 
 update_profile = {
@@ -19,4 +19,3 @@ update_profile = {
         "bio": "everything tech",
         "image": "https://localhost:8000/people.png"
 }
-

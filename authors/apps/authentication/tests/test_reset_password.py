@@ -104,4 +104,4 @@ class ResetPasswordTest(BaseTest):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['errors']
-                         [0], "Password feild is required.")
+                         [0], "Password field is required.")

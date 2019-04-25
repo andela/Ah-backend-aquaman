@@ -162,8 +162,8 @@ class FollowersView(generics.ListAPIView):
             user = User.objects.get(id=follow['follower'])
             followers_list.append({
                 "username": user.username,
-                "bio": profile.bio,
-                "image": profile.image,
+                "bio": user.profile.bio,
+                "image": user.profile.image,
                 "followed_at": follow['followed_at']
             })
         if not followers_list:

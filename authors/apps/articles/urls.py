@@ -4,7 +4,7 @@ from .views import (
         ArticlesApiView, ArticleDetailApiView,
         ArticleLikeApiView, RateArticleView,
         FavoriteHandlerView, ArticleTagsApiView, ReportArticleView,
-        BookmarksApiView,BookmarksListView)
+        BookmarksApiView, BookmarksListView, ReadingStatsApiView)
 
 urlpatterns = [
     path('articles/', ArticlesApiView.as_view(), name='articles'),
@@ -29,7 +29,8 @@ urlpatterns = [
         name='article-tags'
     ),
     path('articles/<slug>/favorite', FavoriteHandlerView.as_view(),
-    name='article-favorite'),
+         name='article-favorite'),
     path('articles/<slug>/bookmark/', BookmarksApiView.as_view(), name="bookmark_article"),
     path('bookmarks/', BookmarksListView.as_view(), name="articles_bookmarked"),
+    path('<slug>/readstats/', ReadingStatsApiView.as_view(), name='reading-stats'),
 ]

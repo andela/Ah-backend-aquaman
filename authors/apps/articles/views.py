@@ -5,14 +5,12 @@ from rest_framework.response import Response
 from rest_framework import status, filters
 from rest_framework import generics, permissions
 
-from . import (
-    serializers,
-    permissions as app_permissions
-)
+from authors.apps.articles.serializers import ReadingStatsSerializer
+from . import (serializers, permissions as app_permissions)
 from .pagination import ArticlesLimitOffsetPagination
 from .renderers import ArticleJSONRenderer
 from .utils import Utils
-from authors.apps.articles.models import Article, ArticleLikesDislikes, Rating, Bookmark
+from authors.apps.articles.models import Article, ArticleLikesDislikes, Rating, Bookmark, ReadingStats
 from ..profiles.models import Profile
 from authors.apps.core.utils import Utilities
 
@@ -28,8 +26,7 @@ class ArticlesApiView (generics.ListCreateAPIView):
         'description',
         'tagList',
         'author__username',
-        'favorited_articles'
-    )
+        'favorited_articles')
 
     def get_queryset(self):
         queryset = self.queryset
@@ -79,8 +76,7 @@ class ArticlesApiView (generics.ListCreateAPIView):
 
 
 class ArticleDetailApiView (generics.GenericAPIView):
-    permission_classes = (app_permissions.IsAuthorOrReadOnly,
-                          permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (app_permissions.IsAuthorOrReadOnly, permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = serializers.ArticleSerializer
 
     def get(self, request, slug):
@@ -88,7 +84,13 @@ class ArticleDetailApiView (generics.GenericAPIView):
         context = {"request": request}
         if not article:
             return Response({'errors': 'that article was not found'}, status=status.HTTP_404_NOT_FOUND)
+        user = request.user
+
         serialized_data = self.serializer_class(article, context=context)
+
+        if request.auth and (user.id != article.author.pk):
+
+            ReadingStats.objects.create(article=article, user=user)
 
         return Response(serialized_data.data, status=status.HTTP_200_OK)
 
@@ -102,11 +104,9 @@ class ArticleDetailApiView (generics.GenericAPIView):
             serializer_data = self.serializer_class(article, article_data, partial=True, context=context)
             serializer_data.is_valid(raise_exception=True)
             serializer_data.save()
-            return Response(serializer_data.data,
-                            status=status.HTTP_200_OK)
-        return Response({
-            'errors': 'that article was not found'
-        }, status=status.HTTP_404_NOT_FOUND)
+            return Response(serializer_data.data,status=status.HTTP_200_OK)
+
+        return Response({'errors': 'that article was not found'}, status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, slug):
         article = self.get_object(slug)
@@ -157,10 +157,7 @@ class ArticleLikeApiView(generics.GenericAPIView):
         # updates the number of likes and dislikes of a given article
         likes = ArticleLikesDislikes.objects.filter(article_id=article.id, likes=True)
         dislikes = ArticleLikesDislikes.objects.filter(article_id=article.id, likes=False)
-        Article.objects.filter(slug=slug).update(
-            likes=(len(likes)),
-            dislikes=(len(dislikes)),
-        )
+        Article.objects.filter(slug=slug).update(likes=(len(likes)), dislikes=(len(dislikes)), )
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -186,11 +183,9 @@ class RateArticleView(generics.GenericAPIView):
             return Response({"message": "You can not rate your own article"}, status=status.HTTP_403_FORBIDDEN)
 
         try:
-            Rating.objects.get(rated_by_id=user.pk,
-                               article_id=article.pk,
-                               score=score)
-            return Response({"message": "You have already rated the article"},
-                            status=status.HTTP_200_OK)
+            Rating.objects.get(rated_by_id=user.pk, article_id=article.pk, score=score)
+            return Response({"message": "You have already rated the article"}, status=status.HTTP_200_OK)
+
         except Rating.DoesNotExist:
             serializer.save(rated_by=user, article=article)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -215,11 +210,8 @@ class FavoriteHandlerView(generics.GenericAPIView):
         article = get_object_or_404(Article, slug=slug)
 
         if article.author.user.username == user.username:
-            return Response(
-                {
-                    "message": "Please favourite another author's article",
-                },
-                status=status.HTTP_403_FORBIDDEN)
+            return Response({"message": "Please favourite another author's article", },
+                            status=status.HTTP_403_FORBIDDEN)
 
         if article in user.profile.favorited_articles.all():
             return Response({"error": "This article is in your favorites"},
@@ -311,3 +303,19 @@ class BookmarksListView(generics.GenericAPIView):
             return Response({'message': 'You have not bookmarked any articles yet'})
         serializer = self.serializer_class(bookmarks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ReadingStatsApiView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated, ]
+    serializer_class = ReadingStatsSerializer
+
+    def get(self, request, slug):
+        user = request.user.id
+        read_stats = ReadingStats.objects.filter(user=user).all()
+        article = get_object_or_404(Article, slug=slug)
+        context = {"request": request}
+
+        count = read_stats.count()
+        serializer = self.serializer_class(article, context=context)
+        return Response({'numberOfArticlesRead': count, 'article': serializer.data},
+                        status=status.HTTP_200_OK)

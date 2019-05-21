@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from authors.apps.comments.models import Comment
-from .models import Article, ArticleLikesDislikes, Rating, ReportedArticle
-
-from .models import Article, ArticleLikesDislikes, Rating, Bookmark
+from .models import Article, ArticleLikesDislikes, Rating, ReportedArticle, Bookmark, ReadingStats
 
 from ..profiles.serializers import ProfileSerializer
 
@@ -15,6 +13,7 @@ class ArticleSerializer (serializers.ModelSerializer):
     read_time = serializers.CharField(max_length=100, read_only=True)
     favorites = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+    read_stats = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -37,6 +36,7 @@ class ArticleSerializer (serializers.ModelSerializer):
             "favorites",
             "favoritesCount",
             "comments",
+            "read_stats",
         )
         read_only_fields = (
             'author',
@@ -66,6 +66,10 @@ class ArticleSerializer (serializers.ModelSerializer):
         for comment in comments:
             comment_data.append({"comment":comment.body, "author":comment.commented_by.user.username})
         return comment_data
+
+
+    def get_read_stats(self, obj):
+        return ReadingStats.objects.filter(article=obj).count()
 
 
 class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
@@ -116,9 +120,33 @@ class ReportedArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportedArticle
         fields = ('id', 'reporter', 'article', 'reason',)
+
+
 class BookmarkSerializer(serializers.ModelSerializer):
     article = ArticleSerializer(read_only=True)
 
     class Meta:
         model = Bookmark
         fields = ('id', 'article', 'bookmarked_at',)
+
+
+class ReadingStatsSerializer(serializers.ModelSerializer):
+    read_stats_user = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
+    article_title = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReadingStats
+        fields = ('article_title', 'user', 'read_stats_user')
+        read_only = ('article_title', 'user', )
+
+    def get_read_stats_user(self, obj):
+        request = self.context.get('request', None)
+        return ReadingStats.objects.filter(user=request.user, article=obj).count()
+
+    def get_user(self, obj):
+        request = self.context.get('request', None)
+        return request.user.username
+
+    def get_article_title(self, obj):
+        return obj.title

@@ -1,6 +1,6 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -41,6 +41,7 @@ class ArticleManager(models.Manager):
             return Response({"message": "Article has been removed from favorites"},
                             status=status.HTTP_200_OK)
 
+
 class Article(models.Model):
     title = models.CharField(max_length=255)
     author = models.ForeignKey(
@@ -65,7 +66,9 @@ class Article(models.Model):
     favorites = models.ManyToManyField(Profile, related_name='favorited_articles', blank=True)
     favorited = models.BooleanField(default=False)
     favoritesCount = models.IntegerField(default=0)
+    read_stats = models.IntegerField(default=0)
     objects = ArticleManager()
+
     class Meta:
         ordering = ['-created_at']
         get_latest_by = ['id']
@@ -137,8 +140,19 @@ class ReportedArticle(models.Model):
 
     def __str__(self):
         return self.reason
+
+
 class Bookmark(models.Model):
     """Model for creating bookmarks of an article by a user."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     bookmarked_at = models.DateTimeField(auto_now_add=True)
+
+
+class ReadingStats(models.Model):
+    """Model for viewing reading stats of a user"""
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "article: {}, user: {}, read_stats: {}".format(self.article, self.user, self.read_stats)

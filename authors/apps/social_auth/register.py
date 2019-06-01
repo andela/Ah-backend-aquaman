@@ -8,10 +8,20 @@ def register_social_user(provider, user_id, email, name):
 
     if filtered_user_by_email:
         registered_user = authenticate(email=email, password="XXXXXXXX")
-        return {
-            'username': registered_user.username,
-            'email': registered_user.email,
-            'token': registered_user.token}
+        try:
+            return {
+                'username': registered_user.username,
+                'email': registered_user.email,
+                'token': registered_user.token}
+        except TypeError as identifier:
+            return {
+                   "message": "something went wrong"
+               }
+        finally:
+            return {
+                "message":"something went wrong"
+            }
+
 
     else:
         user = {
